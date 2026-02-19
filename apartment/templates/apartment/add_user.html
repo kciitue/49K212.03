@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Thêm người dùng mới</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet"/>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0e4f90", // Màu xanh chuẩn của Sidebar cũ
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                        "primary-light": "#e7eff6",
+                        "primary-dark": "#082f56",
+                        "border-light": "#e5e7eb",
+                        "text-primary": "#111827",
+                        "text-secondary": "#6b7280",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Custom styles for toggle switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #0e4f90;
+        }
+
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #0e4f90;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-primary font-display antialiased h-screen flex overflow-hidden">
+
+<aside class="w-64 bg-white dark:bg-[#1a2632] border-r border-gray-200 dark:border-gray-700 hidden md:flex flex-col z-20 flex-shrink-0">
+    <div class="h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-800">
+        <div class="flex items-center gap-2 text-primary font-bold text-xl">
+            <span class="material-icons">apartment</span>
+            <span>Quản Lý Trọ</span>
+        </div>
+    </div>
+
+    <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="{% url 'home_admin' %}">
+            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">dashboard</span>
+            <span class="font-medium">Tổng quan</span>
+        </a>
+
+        {#        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"#}
+        {#           href="#">#}
+        {#            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">meeting_room</span>#}
+        {#            <span class="font-medium">Phòng trọ</span>#}
+        {#        </a>#}
+
+        <a class="flex items-center px-4 py-3 bg-primary/10 text-primary rounded-lg group transition-colors" href="#">
+            <span class="material-icons mr-3 text-xl">group</span>
+            <span class="font-medium">Người dùng</span>
+        </a>
+
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="#">
+            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">receipt_long</span>
+            <span class="font-medium">Hóa đơn</span>
+        </a>
+
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="#">
+            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">handyman</span>
+            <span class="font-medium flex-1">Yêu cầu</span>
+            <span class="bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-bold min-w-[20px] text-center">3</span>
+        </a>
+
+        {#        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"#}
+        {#           href="#">#}
+        {#            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">bar_chart</span>#}
+        {#            <span class="font-medium">Báo cáo</span>#}
+        {#        </a>#}
+    </nav>
+
+    <div class="p-4 border-t border-gray-100 dark:border-gray-800">
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="#">
+            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">settings</span>
+            <span class="font-medium">Cài đặt</span>
+        </a>
+        <div class="mt-4 flex items-center gap-3 px-4 py-2">
+            <img alt="Hồ sơ người dùng" class="w-8 h-8 rounded-full"
+                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8C0eMIO1-TVFQaxd9pgwXKTSBbHzVK3mYNNw6f1al91czv_-MWDTENqxGZR3CLlKBqaz26D6N7AriM5cZnyRCCqHcUpyE86bA_ioEIZN1pqudnc09nBWkjfRM3AaZOC5d63dKYRRO1s4IT8DCoVBsm6v-EKTMbf1NbOHE5SleCCkGpmdsF_1RGdW07g_uwTzF7XWYWeTp_vgANHHrO6CSzsbO0Rna_Kz_M6VSdqoqCAXaeq3LlFhH-QA9ivxuX-GTl3QQH_c3b5_f"/>
+            <div class="flex flex-col">
+                <span class="text-sm font-medium text-gray-900 dark:text-white">Admin User</span>
+                <span class="text-xs text-gray-500">Chủ trọ</span>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<main class="flex-1 flex flex-col h-screen overflow-y-auto bg-background-light">
+    <header class="md:hidden flex items-center justify-between bg-white border-b border-border-light p-4 sticky top-0 z-10">
+        <h1 class="text-primary font-bold text-lg">RTMS Admin</h1>
+        <button class="text-text-secondary">
+            <span class="material-icons">menu</span>
+        </button>
+    </header>
+
+    <div class="container mx-auto px-4 py-8 md:px-8 max-w-5xl">
+        <nav aria-label="Breadcrumb" class="flex mb-6 text-sm">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                {#                <li class="inline-flex items-center">#}
+                {#                    <a class="text-text-secondary hover:text-primary flex items-center transition-colors" href="#">#}
+                {#                        <span class="material-icons text-[18px] mr-1">home</span>#}
+                {#                        Tổng quan#}
+                {#                    </a>#}
+                {#                </li>#}
+                <li>
+                    <div class="flex items-center">
+                        {#                        <span class="material-icons text-text-secondary text-[16px] mx-1">chevron_right</span>#}
+                        <a class="text-text-secondary hover:text-primary font-medium transition-colors"
+                           href="{% url 'user_management' %}">Quản lý
+                            người dùng</a>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <span class="material-icons text-text-secondary text-[16px] mx-1">chevron_right</span>
+                        <span class="text-primary font-semibold">Thêm người dùng</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="mb-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Thêm người dùng</h2>
+            <p class="text-text-secondary mt-1">Tạo tài khoản mới và thiết lập quyền truy cập cho người dùng.</p>
+        </div>
+
+        <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-border-light overflow-hidden">
+
+            <form action="{% url 'add_user' %}" class="divide-y divide-gray-100" method="POST">
+                {% csrf_token %}
+                {% if messages %}
+                    <div class="p-4 mb-4">
+                        {% for message in messages %}
+                            <div class="p-3 rounded-lg text-sm {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="p-6 md:p-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">badge</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Thông tin tài khoản</h3>
+                            <p class="text-sm text-text-secondary">Thiết lập thông tin đăng nhập cho người dùng.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="username">Tên đăng nhập
+                                <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-gray-400 text-[20px]">person</span>
+                                </div>
+                                <input class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm placeholder-gray-400"
+                                       id="username" name="username" placeholder="VD: Nguyenvana" type="text"/>
+                            </div>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="password">Mật khẩu <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-gray-400 text-[20px]">lock</span>
+                                </div>
+                                <input class="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm placeholder-gray-400"
+                                       id="password" name="password" placeholder="••••••••" type="password" required/>
+                                <button class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer focus:outline-none"
+                                        type="button" onclick="togglePassword('password', 'icon-eye-1')">
+                                    <span id="icon-eye-1" class="material-symbols-outlined text-[20px]">visibility_off</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="confirm_password">Xác nhận mật khẩu <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-gray-400 text-[20px]">lock_reset</span>
+                                </div>
+                                <input class="block w-full pl-10 pr-16 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm placeholder-gray-400 transition-colors"
+                                       id="confirm_password" name="confirm_password" placeholder="••••••••" type="password" required/>
+
+                                <div class="absolute inset-y-0 right-10 pr-1 flex items-center pointer-events-none">
+                                    <span id="icon-check" class="material-symbols-outlined text-green-500 text-[20px] hidden">check_circle</span>
+                                    <span id="icon-error" class="material-symbols-outlined text-red-500 text-[20px] hidden">cancel</span>
+                                </div>
+
+                                <button class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer focus:outline-none"
+                                        type="button" onclick="togglePassword('confirm_password', 'icon-eye-2')">
+                                    <span id="icon-eye-2" class="material-symbols-outlined text-[20px]">visibility_off</span>
+                                </button>
+                            </div>
+                            <p id="match-error" class="text-red-500 text-xs mt-1 hidden">Mật khẩu xác nhận không khớp!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">person_outline</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Thông tin cá nhân</h3>
+                            <p class="text-sm text-text-secondary">Chi tiết hồ sơ của nhân viên.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="lastname">Họ & Tên
+                                đệm <span class="text-red-500">*</span></label>
+                            <input class="block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm"
+                                   id="lastname" name="lastname" placeholder="VD: Nguyễn Văn" type="text"/>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="firstname">Tên <span
+                                    class="text-red-500">*</span></label>
+                            <input class="block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm"
+                                   id="firstname" name="firstname" placeholder="VD: A" type="text"/>
+                        </div>
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="email">Email liên hệ <span
+                                    class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-gray-400 text-[20px]">mail</span>
+                                </div>
+                                <input class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm"
+                                       id="email" name="email" placeholder="nguyenvana@gmail.com" type="email"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 bg-gray-50/50">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">admin_panel_settings</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Phân quyền & Trạng thái</h3>
+                            <p class="text-sm text-text-secondary">Kiểm soát quyền truy cập và trạng thái hoạt động.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-white border border-border-light rounded-lg shadow-sm">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-medium text-gray-900">Kích hoạt tài khoản</span>
+                                <span class="text-xs text-text-secondary mt-0.5">Cho phép người dùng đăng nhập ngay sau khi tạo.</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_active" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-white border border-border-light rounded-lg shadow-sm">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-medium text-gray-900">Người thuê</span>
+                                <span class="text-xs text-text-secondary mt-0.5">Truy cập vào các chức năng cơ bản của người thuê.</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_renter" id="toggle-renter" onchange="handleRoleToggle('renter')" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-white border border-border-light rounded-lg shadow-sm">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-medium text-gray-900">Chủ trọ</span>
+                                <span class="text-xs text-text-secondary mt-0.5">Toàn quyền truy cập hệ thống.</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_owner" id="toggle-owner" onchange="handleRoleToggle('owner')" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 md:px-8 bg-gray-50 flex items-center justify-end gap-4 rounded-b-xl border-t border-border-light">
+                    <a href="{% url 'user_management' %}"
+                       class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 transition-all shadow-sm"
+                       type="button">
+                        Hủy bỏ
+                    </a>
+                    <button class="px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 focus:ring-4 focus:ring-primary/30 shadow-sm transition-all flex items-center gap-2"
+                            type="submit">
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        Lưu người dùng
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="h-10 w-full"></div>
+    </div>
+</main>
+<script>
+    function handleRoleToggle(role) {
+        const ownerToggle = document.getElementById('toggle-owner');
+        const renterToggle = document.getElementById('toggle-renter');
+
+        if (role === 'owner' && ownerToggle.checked) {
+            renterToggle.checked = false;
+        } else if (role === 'renter' && renterToggle.checked) {
+            ownerToggle.checked = false;
+        }
+    }
+
+    {#Xử lí việc nhập mật khẩu và nhập lại mật khẩu#}
+    const p1 = document.getElementById('password');
+    const p2 = document.getElementById('confirm_password');
+    const iconCheck = document.getElementById('icon-check');
+    const iconError = document.getElementById('icon-error');
+    const errorMsg = document.getElementById('match-error');
+    const btn = document.getElementById('submit-btn');
+
+    // Hàm ẩn/hiện mật khẩu
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.innerText = "visibility"; // Đổi thành mắt mở
+        } else {
+            input.type = "password";
+            icon.innerText = "visibility_off"; // Đổi thành mắt đóng
+        }
+    }
+
+    // Hàm kiểm tra 2 mật khẩu có khớp nhau không
+    function checkMatch() {
+        const val1 = p1.value;
+        const val2 = p2.value;
+
+        // Nếu ô nhập lại chưa có gì thì ẩn hết cảnh báo
+        if (val2.length === 0) {
+            iconCheck.classList.add('hidden');
+            iconError.classList.add('hidden');
+            errorMsg.classList.add('hidden');
+            p2.classList.remove('border-red-500', 'border-green-500');
+            return;
+        }
+
+        if (val1 === val2) {
+            // Khớp
+            iconCheck.classList.remove('hidden');
+            iconError.classList.add('hidden');
+            errorMsg.classList.add('hidden');
+            p2.classList.remove('border-red-500');
+            p2.classList.add('border-green-500');
+        } else {
+            // Không khớp
+            iconCheck.classList.add('hidden');
+            iconError.classList.remove('hidden');
+            errorMsg.classList.remove('hidden');
+            p2.classList.remove('border-green-500');
+            p2.classList.add('border-red-500');
+        }
+    }
+    p1.addEventListener('input', checkMatch);
+    p2.addEventListener('input', checkMatch);
+</script>
+</body>
+</html>

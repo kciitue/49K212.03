@@ -1,0 +1,14 @@
+# Bỏ qua file môi trường chứa bí mật
+.env
+
+# Bỏ qua thư mục môi trường ảo (Nặng và không cần thiết)
+.venv/
+venv/
+env/
+
+# Bỏ qua database local (nếu bạn dùng sqlite3)
+db.sqlite3
+
+# Bỏ qua các file cache của Python
+__pycache__/
+*.pyc

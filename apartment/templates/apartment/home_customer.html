@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Trang chủ</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+          rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+          rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0e4f90",
+                        "primary-hover": "#0a3b6e",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a242f",
+                        "neutral-50": "#f8fafc",
+                        "neutral-100": "#f1f5f9",
+                        "neutral-200": "#e2e8f0",
+                        "neutral-300": "#cbd5e1",
+                        "neutral-400": "#94a3b8",
+                        "neutral-500": "#64748b",
+                        "neutral-600": "#475569",
+                        "neutral-700": "#334155",
+                        "neutral-800": "#1e293b",
+                        "neutral-900": "#0f172a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>.custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 20px;
+    }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-neutral-800 dark:text-neutral-100 font-display min-h-screen flex flex-col">
+<nav class="sticky top-0 z-50 bg-surface-light dark:bg-surface-dark border-b border-neutral-200 dark:border-neutral-700 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <span class="material-icons text-primary text-3xl">home_work</span>
+                    <span class="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">Cổng thông tin thuê nhà</span>
+                </div>
+                <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
+                    <a class="border-primary text-neutral-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                       href="{% url 'home_customer' %}">Trang chủ</a>
+                    <a class="border-transparent text-neutral-500 dark:text-neutral-400 hover:border-neutral-300 hover:text-neutral-700 dark:hover:text-neutral-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                       href="#">Tài liệu</a>
+                    <a class="border-transparent text-neutral-500 dark:text-neutral-400 hover:border-neutral-300 hover:text-neutral-700 dark:hover:text-neutral-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                       href="#">Tin nhắn</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-1 rounded-full text-neutral-400 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <span class="sr-only">Xem thông báo</span>
+                    <span class="material-icons">notifications</span>
+                </button>
+                <div class="flex items-center gap-3 pl-4 border-l border-neutral-200 dark:border-neutral-700">
+                    <div class="hidden md:block text-right">
+                        <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ user.last_name }} {{ user.first_name }}</p>
+                        <p class="text-xs text-neutral-500 dark:text-neutral-400">Phòng 402</p>
+                    </div>
+                    <img alt="User Profile" class="h-8 w-8 rounded-full object-cover ring-2 ring-primary/20"
+                         data-alt="Portrait of a user"
+                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJuBPrpNe_L9koT3_gZ-yHlObWbJcxJAj-JDv5E18HXuZ2MSb6jf2jCuppQVoiEDguAwgpUjlaUi13WCdkBEGgtT7JHbQH6E2KDDkbUo0HiFhEQFhOR2bIMCGcUm8P-9NGIpvSkXob8O84h_mPyaIHDJc_z3LlShK48jFs9950qwVLiDlM7tW2foIYfMXbshn3PDsLxf8AxvIpq4n0-kFJ3xvtBxup33hCl573CbeZ9jxian9xm_4rpPCFn7TLCYxQ4yk0rKIoaKiv"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-neutral-900 dark:text-white">Chào mừng trở lại, {{ user.last_name }} {{ user.first_name }}</h1>
+        <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Dưới đây là thông tin mới nhất về tài khoản thuê
+            nhà của bạn.</p>
+    </header>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 overflow-hidden relative">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <span class="material-icons text-9xl text-primary transform rotate-12 -mr-8 -mt-8">receipt_long</span>
+                </div>
+                <div class="p-6 relative z-10">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                                Số dư hiện tại</p>
+                            <div class="mt-2 flex items-baseline">
+                                <span class="text-4xl font-bold text-neutral-900 dark:text-white">1.250.000đ</span>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                Chưa thanh toán
+                            </span>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex items-center text-sm text-neutral-600 dark:text-neutral-300 mb-1">
+                            <span class="material-icons text-base mr-2 text-primary">event</span>
+                            <span>Hạn thanh toán: <strong>01/10/2023</strong></span>
+                        </div>
+                        <p class="text-xs text-red-500 mt-1">Hết hạn trong 5 ngày</p>
+                    </div>
+                    <button class="w-full bg-primary hover:bg-primary-hover text-white font-medium py-3 px-4 rounded-lg shadow-sm transition-colors duration-200 flex items-center justify-center gap-2">
+                        <span class="material-icons text-sm">payment</span>
+                        Thanh toán ngay
+                    </button>
+                </div>
+                <div class="bg-primary/5 dark:bg-neutral-800 px-6 py-3 border-t border-neutral-200 dark:border-neutral-700">
+                    <a class="text-xs font-medium text-primary hover:text-primary-hover flex items-center justify-center"
+                       href="#">
+                        Xem chi tiết hóa đơn
+                        <span class="material-icons text-xs ml-1">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+            <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
+                <h3 class="text-lg font-medium text-neutral-900 dark:text-white mb-4">Chi tiết hợp đồng</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-neutral-500 dark:text-neutral-400">Thời hạn</span>
+                        <span class="font-medium text-neutral-900 dark:text-white">12 Tháng</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-neutral-500 dark:text-neutral-400">Ngày bắt đầu</span>
+                        <span class="font-medium text-neutral-900 dark:text-white">01/01/2023</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-neutral-500 dark:text-neutral-400">Ngày kết thúc</span>
+                        <span class="font-medium text-neutral-900 dark:text-white">01/01/2024</span>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                    <a class="text-sm font-medium text-primary hover:text-primary-hover flex items-center gap-2"
+                       href="#">
+                        <span class="material-icons text-base">description</span>
+                        Tải xuống hợp đồng
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="lg:col-span-2">
+            <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 h-full flex flex-col">
+                <div class="border-b border-neutral-200 dark:border-neutral-700 px-6 pt-6">
+                    <nav aria-label="Tabs" class="-mb-px flex space-x-8">
+                        <button class="border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 group transition-colors"
+                                id="tab-btn-history" onclick="switchTab('history')">
+                            <span class="material-icons text-lg group-hover:text-primary-hover">history</span>
+                            Lịch sử
+                        </button>
+                        <button class="border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 hover:border-neutral-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 group transition-colors"
+                                id="tab-btn-report" onclick="switchTab('report')">
+                            <span class="material-icons text-lg group-hover:text-neutral-700">build</span>
+                            Báo hỏng
+                        </button>
+                    </nav>
+                </div>
+                <div class="p-6 flex-grow" id="tab-content-history">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-neutral-900 dark:text-white">Giao dịch gần đây</h3>
+                        <button class="text-sm text-primary hover:text-primary-hover font-medium flex items-center gap-1">
+                            <span class="material-icons text-sm">download</span> Xuất CSV
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+                            <thead class="bg-neutral-50 dark:bg-neutral-800">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+                                    scope="col">Ngày
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+                                    scope="col">Mô tả
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+                                    scope="col">Số tiền
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+                                    scope="col">Trạng thái
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+                                    scope="col">Thao tác
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-surface-dark divide-y divide-neutral-200 dark:divide-neutral-700">
+                            <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-neutral-300">
+                                    01/09/2023
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-neutral-900 dark:text-white">
+                                    Tiền thuê - Tháng 9
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-white font-medium">
+                                    1.250.000đ
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                Đã thanh toán
+                                            </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a class="text-primary hover:text-primary-hover" href="#">Biên lai</a>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-neutral-300">
+                                    01/08/2023
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-neutral-900 dark:text-white">
+                                    Tiền thuê - Tháng 8
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-white font-medium">
+                                    1.250.000đ
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                Đã thanh toán
+                                            </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a class="text-primary hover:text-primary-hover" href="#">Biên lai</a>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-neutral-300">
+                                    15/07/2023
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-neutral-900 dark:text-white">
+                                    Phí trễ hạn
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-white font-medium">
+                                    50.000đ
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                Đã thanh toán
+                                            </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a class="text-primary hover:text-primary-hover" href="#">Biên lai</a>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-neutral-300">
+                                    01/07/2023
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-neutral-900 dark:text-white">
+                                    Tiền thuê - Tháng 7
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-white font-medium">
+                                    1.250.000đ
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                Đã thanh toán
+                                            </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a class="text-primary hover:text-primary-hover" href="#">Biên lai</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="p-6 hidden" id="tab-content-report">
+                    <div class="max-w-2xl mx-auto">
+                        <div class="mb-6 text-center sm:text-left">
+                            <h3 class="text-lg font-medium text-neutral-900 dark:text-white">Gửi yêu cầu / Báo hỏng</h3>
+                            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Vui lòng cung cấp chi tiết về
+                                vấn đề. Chúng tôi sẽ phản hồi trong vòng 24 giờ.</p>
+                        </div>
+                        <form action="#" class="space-y-6">
+                            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                                <div class="sm:col-span-3">
+                                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+                                           for="category">Loại vấn đề</label>
+                                    <div class="mt-1 relative rounded-md shadow-sm">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="material-icons text-neutral-400 text-lg">category</span>
+                                        </div>
+                                        <select class="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-neutral-300 rounded-lg dark:bg-neutral-800 dark:border-neutral-700 dark:text-white py-2.5"
+                                                id="category" name="category">
+                                            <option>Điện</option>
+                                            <option>Nước</option>
+                                            <option>Khác</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="sm:col-span-3">
+                                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+                                           for="urgency">Mức độ khẩn cấp</label>
+                                    <div class="mt-1 relative rounded-md shadow-sm">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="material-icons text-neutral-400 text-lg">priority_high</span>
+                                        </div>
+                                        <select class="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-neutral-300 rounded-lg dark:bg-neutral-800 dark:border-neutral-700 dark:text-white py-2.5"
+                                                id="urgency" name="urgency">
+                                            <option>Thấp - Có thể đợi vài ngày</option>
+                                            <option>Trung bình - Cần chú ý sớm</option>
+                                            <option>Cao - Khẩn cấp</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="sm:col-span-6">
+                                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+                                           for="description">Mô tả</label>
+                                    <div class="mt-1">
+                                        <textarea
+                                                class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-neutral-300 rounded-lg dark:bg-neutral-800 dark:border-neutral-700 dark:text-white p-3"
+                                                id="description" name="description" placeholder="Mô tả chi tiết..."
+                                                rows="4"></textarea>
+                                    </div>
+                                </div>
+                                <div class="sm:col-span-6">
+                                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Hình
+                                        ảnh</label>
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-neutral-300 dark:border-neutral-700 border-dashed rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors cursor-pointer group">
+                                        <div class="space-y-1 text-center">
+                                            <span class="material-icons text-4xl text-neutral-400 group-hover:text-primary transition-colors">cloud_upload</span>
+                                            <div class="flex text-sm text-neutral-600 dark:text-neutral-400 justify-center">
+                                                <label class="relative cursor-pointer bg-transparent rounded-md font-medium text-primary hover:text-primary-hover focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary"
+                                                       for="file-upload">
+                                                    <span>Tải lên tệp</span>
+                                                    <input class="sr-only" id="file-upload" name="file-upload"
+                                                           type="file"/>
+                                                </label>
+                                                <p class="pl-1">hoặc kéo và thả</p>
+                                            </div>
+                                            <p class="text-xs text-neutral-500">PNG, JPG, GIF tối đa 10MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-2 flex justify-end">
+                                <button class="bg-primary hover:bg-primary-hover text-white font-medium py-2.5 px-6 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary flex items-center gap-2"
+                                        type="submit">
+                                    <span class="material-icons text-sm">send</span>
+                                    Gửi yêu cầu
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    // Simple vanilla JS tab switching logic
+    function switchTab(tabName) {
+        // Hide all contents
+        document.getElementById('tab-content-history').classList.add('hidden');
+        document.getElementById('tab-content-report').classList.add('hidden');
+        // Remove active styles from all buttons
+        const historyBtn = document.getElementById('tab-btn-history');
+        const reportBtn = document.getElementById('tab-btn-report');
+        // Reset styles to default inactive
+        const inactiveClasses = ['border-transparent', 'text-neutral-500', 'dark:text-neutral-400', 'hover:text-neutral-700', 'dark:hover:text-neutral-300', 'hover:border-neutral-300'];
+        const activeClasses = ['border-primary', 'text-primary'];
+        historyBtn.classList.remove(...activeClasses);
+        historyBtn.classList.add(...inactiveClasses);
+        reportBtn.classList.remove(...activeClasses);
+        reportBtn.classList.add(...inactiveClasses);
+        // Activate specific tab
+        const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+        activeBtn.classList.remove(...inactiveClasses);
+        activeBtn.classList.add(...activeClasses);
+        document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>
