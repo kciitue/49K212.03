@@ -72,7 +72,7 @@
         {#            <span class="font-medium">Phòng trọ</span>#}
         {#        </a>#}
 
-        <a class="flex items-center px-4 py-3 bg-primary/10 text-primary rounded-lg group transition-colors" href="#">
+        <a class="flex items-center px-4 py-3 bg-primary/10 text-primary rounded-lg group transition-colors" href="{% url 'user_management' %}">
             <span class="material-icons mr-3 text-xl">group</span>
             <span class="font-medium">Người dùng</span>
         </a>
@@ -149,13 +149,15 @@
         </nav>
 
         <div class="mb-8">
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Thêm người dùng</h2>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
+                {% if is_edit %}Chỉnh sửa thông tin người dùng{% else %}Thêm người dùng{% endif %}
+            </h2>
             <p class="text-text-secondary mt-1">Tạo tài khoản mới và thiết lập quyền truy cập cho người dùng.</p>
         </div>
 
         <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-border-light overflow-hidden">
 
-            <form action="{% url 'add_user' %}" class="divide-y divide-gray-100" method="POST">
+            <form action="" class="divide-y divide-gray-100" method="POST">
                 {% csrf_token %}
                 {% if messages %}
                     <div class="p-4 mb-4">
@@ -185,9 +187,10 @@
                                     <span class="material-symbols-outlined text-gray-400 text-[20px]">person</span>
                                 </div>
                                 <input class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm placeholder-gray-400"
-                                       id="username" name="username" placeholder="VD: Nguyenvana" type="text"/>
+                                       id="username" name="username" value="{{ user_to_edit.username|default:'' }}" placeholder="VD: Nguyenvana" type="text"/>
                             </div>
                         </div>
+                        {% if not is_edit %}
                         <div class="col-span-1">
                             <label class="block text-sm font-medium text-gray-700 mb-2" for="password">Mật khẩu <span class="text-red-500">*</span></label>
                             <div class="relative">
@@ -195,7 +198,7 @@
                                     <span class="material-symbols-outlined text-gray-400 text-[20px]">lock</span>
                                 </div>
                                 <input class="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm placeholder-gray-400"
-                                       id="password" name="password" placeholder="••••••••" type="password" required/>
+                                       id="password" name="password"  placeholder="••••••••" type="password" required/>
                                 <button class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer focus:outline-none"
                                         type="button" onclick="togglePassword('password', 'icon-eye-1')">
                                     <span id="icon-eye-1" class="material-symbols-outlined text-[20px]">visibility_off</span>
@@ -224,6 +227,7 @@
                             </div>
                             <p id="match-error" class="text-red-500 text-xs mt-1 hidden">Mật khẩu xác nhận không khớp!</p>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -234,7 +238,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">Thông tin cá nhân</h3>
-                            <p class="text-sm text-text-secondary">Chi tiết hồ sơ của nhân viên.</p>
+                            <p class="text-sm text-text-secondary">Chi tiết hồ sơ của người dùng.</p>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -242,13 +246,13 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2" for="lastname">Họ & Tên
                                 đệm <span class="text-red-500">*</span></label>
                             <input class="block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm"
-                                   id="lastname" name="lastname" placeholder="VD: Nguyễn Văn" type="text"/>
+                                   id="lastname" name="last_name" value="{{ user_to_edit.last_name|default:'' }}" placeholder="VD: Nguyễn Văn" type="text"/>
                         </div>
                         <div class="col-span-1">
                             <label class="block text-sm font-medium text-gray-700 mb-2" for="firstname">Tên <span
                                     class="text-red-500">*</span></label>
                             <input class="block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm"
-                                   id="firstname" name="firstname" placeholder="VD: A" type="text"/>
+                                   id="firstname" name="first_name" value="{{ user_to_edit.first_name|default:'' }}" placeholder="VD: A" type="text"/>
                         </div>
                         <div class="col-span-1 md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2" for="email">Email liên hệ <span
@@ -258,7 +262,7 @@
                                     <span class="material-symbols-outlined text-gray-400 text-[20px]">mail</span>
                                 </div>
                                 <input class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm"
-                                       id="email" name="email" placeholder="nguyenvana@gmail.com" type="email"/>
+                                       id="email" name="email" placeholder="nguyenvana@gmail.com" value="{{ user_to_edit.email|default:'' }}" type="email"/>
                             </div>
                         </div>
                     </div>
@@ -319,7 +323,7 @@
                     <button class="px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 focus:ring-4 focus:ring-primary/30 shadow-sm transition-all flex items-center gap-2"
                             type="submit">
                         <span class="material-symbols-outlined text-[18px]">save</span>
-                        Lưu người dùng
+                        {% if is_edit %}Cập nhật người dùng{% else %}Lưu người dùng{% endif %}
                     </button>
                 </div>
             </form>

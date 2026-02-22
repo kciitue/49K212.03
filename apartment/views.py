@@ -10,6 +10,8 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.auth.models import User
+from .forms import *
 # Create your views here.
 @never_cache
 @csrf_protect
@@ -59,12 +61,24 @@ def user_management(request):
     users = User.objects.all().order_by('-date_joined')
     #Chức năng tìm kiếm
     search_query = request.GET.get('q', '')
+    role_filter = request.GET.get('role', '')
     users = User.objects.all().order_by('-date_joined')
+    status_filter = request.GET.get('status', '')
     if search_query:
         users = users.filter(
             Q(first_name__icontains=search_query) |  # Tìm trong tên
             Q(last_name__icontains=search_query) # Tìm trong họ & tên đệm
         )
+    #Chức năng sort theo vai trò
+    if role_filter == 'owner':
+        users = users.filter(is_superuser=True) #Chủ trọ
+    elif role_filter == 'renter':
+        users = users.filter(is_superuser=False) #Người thuê
+    #Chức năng sort theo trạng thái hoạt động
+    if status_filter == 'active':
+        users = users.filter(is_active=True) #Hoạt động
+    elif status_filter == 'inactive':
+        users = users.filter(is_active=False) #Không hoạt động
     #Chức năng phân trang
     paginator = Paginator(users, 4)
     page_number = request.GET.get('page')
@@ -75,6 +89,8 @@ def user_management(request):
         'owners':User.objects.filter(is_superuser=True).count(),
         'renters': User.objects.filter(is_superuser=False).count(),
         'search_query': search_query,
+        'role_filter': role_filter,
+        'status_filter': status_filter,
     }
     return render(request, 'apartment/user_management.html', context)
 
@@ -86,8 +102,8 @@ def add_user(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
-        firstname = request.POST.get('firstname')
-        lastname = request.POST.get('lastname')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
 
         is_active = request.POST.get('is_active') == 'on'
@@ -103,8 +119,8 @@ def add_user(request):
         try:
             # Lưu User mới
             user = User.objects.create_user(username=username, email=email, password=password)
-            user.first_name = firstname
-            user.last_name = lastname
+            user.first_name = first_name
+            user.last_name = last_name
             user.is_active = is_active
             # Phân quyền
             if is_owner:
@@ -114,7 +130,7 @@ def add_user(request):
                 user.is_superuser = False
                 user.is_staff = False
             user.save()
-            messages.success(request, f"Đã thêm người dùng {lastname} {firstname} thành công!")
+            messages.success(request, f"Đã thêm người dùng {last_name} {first_name} thành công!")
             return redirect('user_management')
         except Exception as e:
             messages.error(request, f"Có lỗi xảy ra: {e}")
@@ -136,7 +152,24 @@ def delete_user(request, user_id):
         messages.success(request, f"Đã xóa người dùng {full_name} thành công!")
     return redirect('user_management')
 
-
+#Cập nhật tài khoản
+def edit_user(request, user_id):
+    user_to_edit =get_object_or_404(User, pk=user_id)
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=user_to_edit)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Đã cập nhật thông tin người dùng thành công!')
+            return redirect('user_management')
+    else:
+        #Mở form thì tự động điền sẵn các thông tin Họ, Tên và Email cũ
+        form = UserUpdateForm(instance=user_to_edit)
+    #Khi edit thì sẽ hiển thị dữ liệu cũ
+    return render(request, 'apartment/add_user.html',{
+    'form': form,
+    'user_to_edit': user_to_edit,
+    'is_edit': True
+    })
 #Tính năng bật/tắt tài khoản
 @login_required
 @user_passes_test(is_owner, login_url='login')

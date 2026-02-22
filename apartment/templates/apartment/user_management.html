@@ -37,6 +37,7 @@
             filter: grayscale(100%) opacity(40%);
             transition: all 0.2s ease-in-out;
         }
+
         input[type="search"]::-webkit-search-cancel-button:hover {
             filter: grayscale(100%) opacity(70%);
         }
@@ -98,7 +99,7 @@
             <img alt="Hồ sơ người dùng" class="w-8 h-8 rounded-full" data-alt="Admin user avatar"
                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8C0eMIO1-TVFQaxd9pgwXKTSBbHzVK3mYNNw6f1al91czv_-MWDTENqxGZR3CLlKBqaz26D6N7AriM5cZnyRCCqHcUpyE86bA_ioEIZN1pqudnc09nBWkjfRM3AaZOC5d63dKYRRO1s4IT8DCoVBsm6v-EKTMbf1NbOHE5SleCCkGpmdsF_1RGdW07g_uwTzF7XWYWeTp_vgANHHrO6CSzsbO0Rna_Kz_M6VSdqoqCAXaeq3LlFhH-QA9ivxuX-GTl3QQH_c3b5_f"/>
             <div class="flex flex-col">
-                <span class="text-sm font-medium text-gray-900 dark:text-white">Admin User</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ user.last_name }} {{ user.first_name }}</span>
                 <span class="text-xs text-gray-500">Chủ trọ</span>
             </div>
         </div>
@@ -187,15 +188,15 @@
                 <h3 class="text-lg font-bold text-slate-900">Danh sách Người dùng</h3>
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="flex items-center gap-2">
-                        <select class="form-select pl-3 pr-8 py-2 text-sm border-slate-200 rounded-lg bg-slate-50 focus:border-primary focus:ring-primary cursor-pointer text-slate-600">
-                            <option>Tất cả vai trò</option>
-                            <option>Chủ trọ</option>
-                            <option>Người thuê</option>
+                        <select id="roleFilter" onchange="applyFilters()" class="form-select pl-3 pr-8 py-2 text-sm border-slate-200 rounded-lg bg-slate-50 focus:border-primary focus:ring-primary cursor-pointer text-slate-600">
+                            <option value="" {% if role_filter == '' %}selected{% endif %}>Tất cả vai trò</option>
+                            <option value="owner" {% if role_filter == 'owner' %}selected{% endif %}>Chủ trọ</option>
+                            <option value="renter" {% if role_filter == 'renter' %}selected{% endif %}>Người thuê</option>
                         </select>
-                        <select class="form-select pl-3 pr-8 py-2 text-sm border-slate-200 rounded-lg bg-slate-50 focus:border-primary focus:ring-primary cursor-pointer text-slate-600">
-                            <option>Tất cả trạng thái</option>
-                            <option>Hoạt động</option>
-                            <option>Ngưng hoạt động</option>
+                        <select id="statusFilter" onchange="applyFilters()" class="form-select pl-3 pr-8 py-2 text-sm border-slate-200 rounded-lg bg-slate-50 focus:border-primary focus:ring-primary cursor-pointer text-slate-600">
+                            <option value="" {% if status_filter == '' %}selected{% endif %}>Tất cả trạng thái</option>
+                            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Hoạt động</option>
+                            <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Ngưng hoạt động</option>
                         </select>
                     </div>
                     <a href="{% url 'add_user' %}"
@@ -262,9 +263,11 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <button class="p-1.5 rounded-md text-slate-400 hover:text-primary hover:bg-blue-50 transition-colors">
+                                    <a href="{% url 'edit_user' user.id %}"
+                                       class="p-1.5 rounded-md text-slate-400 hover:text-primary hover:bg-blue-50 transition-colors"
+                                       title="Edit">
                                         <span class="material-symbols-outlined text-[20px]">edit</span>
-                                    </button>
+                                    </a>
                                     <a href="{% url 'delete_user' user.id %}"
                                        onclick="return confirm('Bạn có chắc chắn muốn xóa tài khoản này không? Hành động này không thể hoàn tác.');"
                                        class="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
@@ -291,7 +294,7 @@
                 <div class="flex items-center gap-2">
                     {% if users.has_previous %}
                         <a href="?page=
-                                {{ users.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                                {{ users.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}"
                            class="inline-block px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
                             Trước
                         </a>
@@ -304,7 +307,7 @@
 
                     {% if users.has_next %}
                         <a href="?page=
-                                {{ users.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                                {{ users.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}"
                            class="inline-block px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
                             Sau
                         </a>
@@ -369,12 +372,12 @@
             });
     }
 
-    {#Tự động load lại khi xóa nội dung ở tìm kiếm#}
-    document.addEventListener("DOMContentLoaded", function() {
+    //Tự động load lại khi xóa nội dung ở tìm kiếm
+    document.addEventListener("DOMContentLoaded", function () {
         const searchInput = document.getElementById('searchInput');
 
         if (searchInput) {
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 // Kiểm tra nếu ô input bị xóa trống (không còn chữ nào)
                 if (this.value.trim() === '') {
                     // Tự động submit form để trả về trang danh sách mặc định
@@ -383,6 +386,34 @@
             });
         }
     });
+
+    //Bộ lọc vai trò và trạng thái
+    function applyFilters() {
+        const role = document.getElementById('roleFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        // Lấy URL hiện tại
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Cập nhật tham số role
+        if (role) {
+            urlParams.set('role', role);
+        } else {
+            urlParams.delete('role'); // Xóa nếu chọn tất cả trạng thái
+        }
+        // Cập nhật tham số status
+        if (status) {
+            urlParams.set('status', status);
+        } else {
+            urlParams.delete('status'); // Xóa nếu chọn tất cả trạng thái
+        }
+
+        // Xóa tham số page để đưa về trang 1 khi lọc
+        // (Tránh lỗi: đang ở trang 3, lọc xong chỉ có 1 trang thì bị trống trơn)
+        urlParams.delete('page');
+
+        // Chuyển hướng trang web sang URL mới
+        window.location.search = urlParams.toString();
+    }
 </script>
 </body>
 </html>
