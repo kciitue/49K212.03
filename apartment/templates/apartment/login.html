@@ -57,10 +57,12 @@
     <div class="p-8 pt-6 space-y-6">
         {% if messages %}
             {% for message in messages %}
+                {% if message.tags == 'error' %}
                 <div class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
                     <span class="material-icons mr-2 text-lg">error_outline</span>
                     <span class="font-medium">{{ message }}</span>
                 </div>
+                {% endif %}
             {% endfor %}
         {% endif %}
         <form method="post" action="{% url 'login' %}" class="space-y-5">
