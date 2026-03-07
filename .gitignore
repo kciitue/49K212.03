@@ -12,3 +12,4 @@ db.sqlite3
 # Bỏ qua các file cache của Python
 __pycache__/
 *.pyc
+media
