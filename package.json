@@ -1,0 +1,16 @@
+{
+  "name": "qtda",
+  "version": "1.0.0",
+  "description": "QTDA Frontend Project",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server",
+    "dev": "npx http-server -c-1"
+  },
+  "keywords": ["frontend"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.x.x"
+  }
+}

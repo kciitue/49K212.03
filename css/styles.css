@@ -1,0 +1,10 @@
+/* Custom Styles */
+/* Thêm các style tùy chỉnh tại đây */
+
+:root {
+  --primary-color: #0e4f90;
+  --primary-light: #e7eff6;
+  --primary-dark: #082f56;
+  --background-light: #f6f7f8;
+  --background-dark: #111921;
+}
