@@ -48,7 +48,7 @@
         </a>
 
         <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
-           href="{% url 'user_management' %}">
+           {% comment %} href="{% url 'user_management' %}"> {% endcomment %}
             <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">people</span>
             <span class="font-medium">Người dùng</span>
         </a>
@@ -74,7 +74,7 @@
             <img alt="Hồ sơ người dùng" class="w-8 h-8 rounded-full" data-alt="Admin user avatar"
                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8C0eMI…O6CSzsbO0Rna_Kz_M6VSdqoqCAXaeq3LlFhH-QA9ivxuX-GTl3QQH_c3b5_f"/>
             <div class="flex flex-col">
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ user.last_name }} {{ user.first_name }}</span>
+                {% comment %} <span class="text-sm font-medium text-gray-900 dark:text-white">{{ user.last_name }} {{ user.first_name }}</span> {% endcomment %}
                 <span class="text-xs text-gray-500">Chủ trọ</span>
             </div>
         </div>
