@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% if room %}Chỉnh sửa phòng {{ room.name }}{% else %}Thêm thông tin phòng{% endif %}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#177fe8",
+                        "primary-hover": "#106ac5",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .form-checkbox:checked {
+            background-color: #177fe8;
+            border-color: #177fe8;
+        }
+
+        .form-radio:checked {
+            color: #177fe8;
+        }
+
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #177fe8;
+        }
+
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #177fe8;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-700 dark:text-gray-200 antialiased selection:bg-primary/20 selection:text-primary transition-colors duration-200">
+<form method="POST" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+    <nav class="bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700 px-6 py-3 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="{% url 'home_admin' %}" class="text-gray-500 hover:text-primary transition-colors">
+                    <span class="material-icons">arrow_back</span>
+                </a>
+                <div class="flex flex-col">
+                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        {% if room %}
+                        Chỉnh sửa thông tin phòng {{ room.name }}
+                        {% else %}
+                        Thêm thông tin phòng
+                        {% endif %}
+                    </h1>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Danh sách phòng / {% if room %}Chỉnh sửa{% else %}Thêm mới{% endif %}</span>
+                </div>
+            </div>
+            <div class="inline-flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
+                <label class="cursor-pointer relative m-0 flex-1 sm:w-28">
+                    <input type="radio" name="status" value="available" class="peer sr-only"
+                           {% if room.status == 'Trống' or not room %}checked{% endif %}>
+                    <div class="py-1.5 px-2 rounded-md text-sm font-medium text-gray-500 dark:text-gray-400 peer-checked:bg-white dark:peer-checked:bg-gray-700 peer-checked:text-gray-900 dark:peer-checked:text-white peer-checked:shadow-sm transition-all flex items-center justify-center">
+                        Trống
+                    </div>
+                </label>
+
+                <label class="cursor-pointer relative m-0 flex-1 sm:w-28">
+                    <input type="radio" name="status" value="rented" class="peer sr-only"
+                           {% if room.status == 'Đang thuê' %}checked{% endif %}>
+                    <div class="py-1.5 px-2 rounded-md text-sm font-medium text-gray-500 dark:text-gray-400 peer-checked:bg-white dark:peer-checked:bg-gray-700 peer-checked:text-gray-900 dark:peer-checked:text-white peer-checked:shadow-sm transition-all flex items-center justify-center">
+                        Đang thuê
+                    </div>
+                </label>
+
+                <label class="cursor-pointer relative m-0 flex-1 sm:w-28">
+                    <input type="radio" name="status" value="deposited" class="peer sr-only" {% if room.status == 'Đã cọc' %}checked{% endif %}>
+                        <div class="py-1.5 px-2 rounded-md text-sm font-medium text-gray-500 dark:text-gray-400 peer-checked:bg-white dark:peer-checked:bg-gray-700 peer-checked:text-gray-900 dark:peer-checked:text-white peer-checked:shadow-sm transition-all flex items-center justify-center">
+                        Đã cọc
+                        </div>
+                    </label>
+
+                <label class="cursor-pointer relative m-0 flex-1 sm:w-28">
+                    <input type="radio" name="status" value="maintenance" class="peer sr-only"
+                           {% if room.status == 'Sửa chữa' %}checked{% endif %}>
+                    <div class="py-1.5 px-2 rounded-md text-sm font-medium text-gray-500 dark:text-gray-400 peer-checked:bg-white dark:peer-checked:bg-gray-700 peer-checked:text-gray-900 dark:peer-checked:text-white peer-checked:shadow-sm transition-all flex items-center justify-center">
+                        Sửa chữa
+                    </div>
+                </label>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-6">
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="flex items-center p-4 text-sm rounded-lg border {% if message.tags == 'success' %}bg-green-50 text-green-700 border-green-200{% else %}bg-red-50 text-red-700 border-red-200{% endif %} shadow-sm transition-all duration-300"
+                 role="alert">
+                <span class="material-icons text-lg mr-2">
+                    {% if message.tags == 'success' %}check_circle{% else %}error{% endif %}
+                </span>
+                <span class="font-medium">{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <script>
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('[role="alert"]');
+                alerts.forEach(alert => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 3000);
+        </script>
+        {% endif %}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 space-y-6">
+                <section
+                        class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Thông tin cơ bản</h2>
+                        </div>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tên
+                                phòng</label>
+                            <input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2.5"
+                                   type="text" placeholder="VD: 101" name="name"
+                                   value="{{ room.name|default:'' }}"
+                                   oninvalid="this.setCustomValidity('Tên phòng không được bỏ trống!')"
+                                   oninput="this.setCustomValidity('')" required/>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tầng</label>
+                            <div class="relative">
+                                <input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2.5 appearance-none"
+                                       placeholder="VD: 1" name="floor"
+                                       value="{{ room.floor|default:'' }}"
+                                       oninvalid="this.setCustomValidity('Số tầng không được bỏ trống!')"
+                                       oninput="this.setCustomValidity('')" required/>
+                            </div>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Diện tích
+                                (m²)</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <input class="block w-full rounded-lg border-gray-300 dark:border-gray-600 pl-3 pr-10 focus:border-primary focus:ring-primary sm:text-sm py-2.5 bg-white dark:bg-gray-800 dark:text-white"
+                                       placeholder="VD: 25" name="area"
+                                       value="{{ room.area|default:'' }}"
+                                       oninvalid="this.setCustomValidity('Diện tích không được bỏ trống!')"
+                                       oninput="this.setCustomValidity('')" required/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">m²</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Số người tối
+                                đa</label>
+                            <div class="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden w-full">
+                                <button type="button"
+                                        onclick="let input = this.nextElementSibling; if(parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;"
+                                        class="px-3 py-2 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border-r border-gray-300 dark:border-gray-600 text-gray-500 transition-colors">
+                                    <span class="material-icons text-sm">remove</span>
+                                </button>
+                                <input class="w-full text-center border-none focus:ring-0 p-2 bg-white dark:bg-gray-800 dark:text-white text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                       type="number" value="{{ room.max_occupancy|default:'1' }}" min="1"
+                                       oninput="this.value = Math.abs(this.value); if(this.value == 0) this.value = 1;"
+                                       name="max_occupancy" required/>
+                                <button type="button"
+                                        onclick="let input = this.previousElementSibling; input.value = parseInt(input.value) + 1;"
+                                        class="px-3 py-2 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border-l border-gray-300 dark:border-gray-600 text-gray-500 transition-colors">
+                                    <span class="material-icons text-sm">add</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-span-1 sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Giá thuê
+                                (Tháng)</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">₫</span>
+                                </div>
+                                <input class="block w-full rounded-lg border-gray-300 dark:border-gray-600 pl-7 pr-12 focus:border-primary focus:ring-primary sm:text-sm py-2.5 font-semibold text-gray-900 dark:text-white bg-white dark:bg-gray-800"
+                                       placeholder="VD: 4.500.000" type="text" name="base_rent"
+                                       value="{{ room.base_rent|default:'' }}"
+                                       oninvalid="this.setCustomValidity('Giá thuê không được bỏ trống!')"
+                                       oninput="this.setCustomValidity('')" required/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">VNĐ</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-1 sm:col-span-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Tiện nghi
+                                phòng</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <label class="inline-flex items-center space-x-2 cursor-pointer group">
+                                    <input {% if room %}{% if room.air_conditioner %}checked{% endif %}{% else
+                                           %}checked{% endif %}
+                                           class="form-checkbox rounded text-primary border-gray-300 focus:ring-primary h-4 w-4"
+                                           type="checkbox" name="air_conditioner"/>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200">Máy lạnh</span>
+                                </label>
+                                <label class="inline-flex items-center space-x-2 cursor-pointer group">
+                                    <input {% if room %}{% if room.water_heater %}checked{% endif %}{% else %}checked{% endif %}
+                                           class="form-checkbox rounded text-primary border-gray-300 focus:ring-primary h-4 w-4"
+                                           type="checkbox" name="water_heater"/>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200">Máy nước nóng</span>
+                                </label>
+                                <label class="inline-flex items-center space-x-2 cursor-pointer group">
+                                    <input {% if room.refrigerator %}checked{% endif %}
+                                           class="form-checkbox rounded text-primary border-gray-300 focus:ring-primary h-4 w-4"
+                                           type="checkbox" name="refrigerator"/>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200">Tủ lạnh</span>
+                                </label>
+                                <label class="inline-flex items-center space-x-2 cursor-pointer group">
+                                    <input
+                                            {% if room %}{% if room.furniture %}checked{% endif %}{% else %}checked{% endif %}
+                                            class="form-checkbox rounded text-primary border-gray-300 focus:ring-primary h-4 w-4"
+                                            type="checkbox" name="furniture"/>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200">Giường / Tủ</span>
+                                </label>
+                                <label class="inline-flex items-center space-x-2 cursor-pointer group">
+                                    <input {% if room.balcony %}checked{% endif %}
+                                           class="form-checkbox rounded text-primary border-gray-300 focus:ring-primary h-4 w-4"
+                                           type="checkbox" name="balcony"/>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200">Ban công</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                        class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Đơn giá & Chỉ số dịch
+                                vụ</h2>
+                        </div>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="bg-primary/5 p-4 rounded-lg border border-primary/10">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-1">Đơn
+                                    giá điện</label>
+                            </div>
+                            <div class="relative rounded-md shadow-sm">
+                                <input class="block w-full rounded-md border-gray-300 dark:border-gray-600 pl-3 pr-16 focus:border-primary focus:ring-primary sm:text-sm py-2 text-left placeholder:text-xs bg-white dark:bg-gray-800 dark:text-white"
+                                       type="text" placeholder="VD: 3.900" name="electricity_price"
+                                       value="{{ room.electricity_price|default:'' }}"
+                                       oninvalid="this.setCustomValidity('Đơn giá điện không được bỏ trống!')"
+                                       oninput="this.setCustomValidity('')" required/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500 text-xs">đ/kWh</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-primary/5 p-4 rounded-lg border border-primary/10">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-1">Đơn
+                                    giá nước</label>
+                            </div>
+                            <div class="relative rounded-md shadow-sm">
+                                <input class="block w-full rounded-md border-gray-300 dark:border-gray-600 pl-3 pr-12 focus:border-primary focus:ring-primary sm:text-sm py-2 text-left placeholder:text-xs bg-white dark:bg-gray-800 dark:text-white"
+                                       type="text" placeholder="VD: 6.810" name="water_price"
+                                       value="{{ room.water_price|default:'' }}"
+                                       oninvalid="this.setCustomValidity('Đơn giá nước không được bỏ trống!')"
+                                       oninput="this.setCustomValidity('')" required/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500 text-xs">đ/m³</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-1">Chỉ
+                                    số điện đầu</label>
+                            </div>
+                            <div class="relative rounded-md shadow-sm">
+                                <input class="block w-full rounded-md border-gray-300 dark:border-gray-600 pl-3 pr-12 focus:border-primary focus:ring-primary sm:text-sm py-2 text-left placeholder:text-xs bg-white dark:bg-gray-800 dark:text-white"
+                                       type="text" placeholder="Ví dụ: 1250" name="current_electricity"
+                                       value="{{ room.current_electricity|default:'' }}"/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500 text-xs">kWh</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-1">Chỉ
+                                    số nước đầu</label>
+                            </div>
+                            <div class="relative rounded-md shadow-sm">
+                                <input class="block w-full rounded-md border-gray-300 dark:border-gray-600 pl-3 pr-12 focus:border-primary focus:ring-primary sm:text-sm py-2 text-left placeholder:text-xs bg-white dark:bg-gray-800 dark:text-white"
+                                       type="text" placeholder="Ví dụ: 120" name="current_water"
+                                       value="{{ room.current_water|default:'' }}"/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500 text-xs">Khối</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-1">Rác</label>
+                            </div>
+                            <div class="relative rounded-md shadow-sm">
+                                <input class="block w-full rounded-md border-gray-300 dark:border-gray-600 pl-3 pr-16 focus:border-primary focus:ring-primary sm:text-sm py-2 text-left placeholder:text-xs bg-white dark:bg-gray-800 dark:text-white"
+                                       type="text" placeholder="VD: 50.000" name="trash_price"
+                                       value="{{ room.trash_price|default:'' }}"
+                                       oninvalid="this.setCustomValidity('Rác không được bỏ trống!')"
+                                       oninput="this.setCustomValidity('')" required/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500 text-xs">đ/phòng</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-1">Internet</label>
+                            </div>
+                            <div class="relative rounded-md shadow-sm">
+                                <input class="block w-full rounded-md border-gray-300 dark:border-gray-600 pl-3 pr-16 focus:border-primary focus:ring-primary sm:text-sm py-2 text-left placeholder:text-xs bg-white dark:bg-gray-800 dark:text-white"
+                                       type="text" placeholder="VD: 100.000" name="internet_price"
+                                       value="{{ room.internet_price|default:'' }}"
+                                       oninvalid="this.setCustomValidity('Internet không được bỏ trống!')"
+                                       oninput="this.setCustomValidity('')" required/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500 text-xs">đ/phòng</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="lg:col-span-5 space-y-6" >
+                <section id="renter-section"
+                         class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg border border-primary/20 h-full relative overflow-hidden transition-all duration-300">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-400"></div>
+                    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Thông tin người thuê</h2>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-5">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Họ và
+                                    tên</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="material-icons text-gray-400 text-lg">person</span>
+                                    </div>
+                                    <select name="renter_id"
+                                            class="pl-10 block w-full rounded-lg border-gray-300 dark:border-gray-600 focus:border-primary focus:ring-primary sm:text-sm py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white appearance-none cursor-pointer"
+                                            oninvalid="this.setCustomValidity('Vui lòng chọn người thuê!')"
+                                            oninput="this.setCustomValidity('')" required>
+                                        <option value="" disabled {% if not room.active_contract %}selected{% endif %}>
+                                            -- Chọn người thuê --
+                                        </option>
+                                        {% for user in users %}
+                                        <option value="{{ user.id }}"
+                                                {% if room.active_contract and room.active_contract.renter.id == user.id %}selected{% endif %}>
+                                            {{ user.last_name }} {{ user.first_name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Căn
+                                        cước công dân</label>
+                                    <input value="{{ room.active_contract.identify|default:'' }}"
+                                           class="block w-full rounded-lg border-gray-300 dark:border-gray-600 focus:border-primary focus:ring-primary sm:text-sm py-2.5 bg-white dark:bg-gray-800 dark:text-white"
+                                           type="text" name="identify"
+                                           oninvalid="this.setCustomValidity('Căn cước công dân không được bỏ trống!')"
+                                           oninput="this.setCustomValidity('')" required/>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Số
+                                        điện thoại</label>
+                                    <input value="{{ room.active_contract.phone_number|default:'' }}"
+                                           class="block w-full rounded-lg border-gray-300 dark:border-gray-600 focus:border-primary focus:ring-primary sm:text-sm py-2.5 bg-white dark:bg-gray-800 dark:text-white"
+                                           type="tel" name="phone_number"
+                                           oninvalid="this.setCustomValidity('Số điện thoại không được bỏ trống!')"
+                                           oninput="this.setCustomValidity('')" required/>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="border-gray-100 dark:border-gray-700"/>
+
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ngày
+                                        nhận phòng</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="material-icons text-gray-400 text-lg">calendar_today</span>
+                                        </div>
+                                        <input value="{{ room.active_contract.start_date|date:'Y-m-d' }}"
+                                               class="pl-10 block w-full rounded-lg border-gray-300 dark:border-gray-600 focus:border-primary focus:ring-primary sm:text-sm py-2.5 text-gray-900 dark:text-white bg-white dark:bg-gray-800"
+                                               type="date" name="start_date" id = "start_date_input"
+                                               oninvalid="this.setCustomValidity('Vui lòng chọn ngày nhận phòng!')"
+                                               oninput="this.setCustomValidity('')" required/>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Thời
+                                        hạn thuê</label>
+                                    <div class="relative">
+                                        <input value="{{ room.active_contract.duration|default:'' }}"
+                                               class="block w-full rounded-lg border-gray-300 dark:border-gray-600 focus:border-primary focus:ring-primary sm:text-sm py-2.5 pr-14 text-gray-900 dark:text-white bg-white dark:bg-gray-800"
+                                               placeholder="VD: 3" name="duration"
+                                               oninvalid="this.setCustomValidity('Thời hạn thuê phòng không được bỏ trống!')"
+                                               oninput="this.setCustomValidity('')" required/>
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <span class="text-gray-500 sm:text-sm">Tháng</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tiền
+                                    cọc</label>
+                                <div class="relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm">₫</span>
+                                    </div>
+                                    <input value="{{ room.active_contract.deposit|default:'' }}"
+                                           class="block w-full rounded-lg border-gray-300 dark:border-gray-600 pl-7 pr-12 focus:border-primary focus:ring-primary sm:text-sm py-2.5 font-bold text-gray-900 dark:text-white bg-white dark:bg-gray-800"
+                                           placeholder="VD: 4.500.000" type="text" name="deposit"/>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm">VNĐ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hình ảnh hợp
+                                đồng</label>
+
+                            <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 bg-gray-50/30 dark:bg-gray-800/20">
+
+                                <div id="file-name-preview"
+                                     class="grid grid-cols-2 sm:grid-cols-3 gap-3 {% if not room.active_contract.documents.all %}hidden{% endif %} mb-4">
+
+                                    {% if room.active_contract %}
+                                    {% for doc in room.active_contract.documents.all %}
+                                    <div class="group relative rounded-md overflow-hidden border border-gray-200 aspect-square flex items-center justify-center bg-gray-100 dark:bg-gray-800 shadow-sm"
+                                         id="existing-doc-{{ doc.id }}">
+                                        <button type="button" onclick="removeExistingFile({{ doc.id }})"
+                                                class="absolute top-1 right-1 bg-gray-500/80 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20">
+                                            <span class="material-icons text-[14px]">close</span>
+                                        </button>
+                                        <input type="hidden" name="delete_documents" value=""
+                                               id="delete-input-{{ doc.id }}">
+
+                                        <img src="{{ doc.file.url }}" class="w-full h-full object-cover cursor-zoom-in"
+                                             onclick="openModal('{{ doc.file.url }}')">
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+
+                                    <div id="new-files-container" class="contents"></div>
+                                </div>
+
+                                <input type="file" id="document_file" name="document_file" accept="image/*,.pdf"
+                                       class="hidden" multiple onchange="previewFiles(event)">
+                                <label for="document_file"
+                                       class="flex flex-col items-center justify-center py-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors rounded-lg group">
+                                    <span class="material-icons text-gray-400 group-hover:text-primary transition-colors mb-1">add_a_photo</span>
+                                    <span class="text-xs text-gray-500" id="file-label-text">Bấm vào đây để tải lên hoặc chọn thêm ảnh</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-4">
+            <a href="{% url 'home_admin' %}" type="button"
+               class="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                Hủy bỏ
+            </a>
+            <button type="submit"
+                    class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-medium shadow-md shadow-primary/30 transition-all flex items-center gap-2">
+                <span class="material-icons text-sm">save</span>
+                Lưu thông tin
+            </button>
+        </div>
+        <div id="image-modal"
+             class="fixed inset-0 z-[100] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out"
+             onclick="closeModal()">
+            <button class="absolute top-5 right-5 text-white/70 hover:text-white transition-colors">
+                <span class="material-icons text-4xl">close</span>
+            </button>
+
+            <img id="modal-img" src=""
+                 class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-transform duration-300 zoom-in"
+                 onclick="event.stopPropagation()">
+        </div>
+    </main>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusRadios = document.querySelectorAll('input[name="status"]');
+        const tenantSection = document.getElementById('renter-section');
+        const tenantInputs = tenantSection.querySelectorAll('input, select');
+        const startDateInput = document.getElementById('start_date_input');
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000; // Lấy độ lệch múi giờ
+        const localISOTime = new Date(now - offset).toISOString().split('T')[0];
+        const today = localISOTime;
+        
+        if (startDateInput) {
+            startDateInput.setAttribute('min', today);
+        }
+
+        function toggleTenantSection() {
+            const selectedStatus = document.querySelector('input[name="status"]:checked').value;
+
+            if (selectedStatus === 'rented' || selectedStatus === 'deposited') {
+                tenantSection.classList.remove('opacity-50', 'pointer-events-none');
+                tenantInputs.forEach(input => {
+                    input.disabled = false;
+                });
+            } else {
+                tenantSection.classList.add('opacity-50', 'pointer-events-none');
+                tenantInputs.forEach(input => {
+                    input.disabled = true;
+                    if (input.type !== 'hidden') {
+                        if (input.tagName === 'SELECT') {
+                            input.selectedIndex = 0;
+                        } else if (input.type === 'checkbox' || input.type === 'radio') {
+                            input.checked = false;
+                        } else {
+                            input.value = '';
+                        }
+                    }
+                });
+            }
+        }
+
+        statusRadios.forEach(radio => {
+            radio.addEventListener('change', toggleTenantSection);
+        });
+
+        toggleTenantSection();
+        
+        if (startDateInput) {
+            startDateInput.addEventListener('change', function() {
+                if (this.value < today && this.value !== "") {
+                    alert("Ngày thuê chỉ bắt đầu từ hôm nay trở đi");
+                    this.value = today;
+                }
+            });
+        }
+
+        // =========================================================================
+        // PHẦN LOGIC THÊM VÀO ĐỂ BẮT LỖI SỐ ÂM/CHỮ CÁI (KHÔNG LÀM ẢNH HƯỞNG HTML CŨ)
+        // =========================================================================
+
+        // 1. Tắt các sự kiện oninvalid/oninput viết sẵn trong HTML để tránh bị mất thông báo
+        const allInputsToFix = document.querySelectorAll('input[name="name"], input[name="identify"], input[name="phone_number"], input[name="floor"], input[name="area"], input[name="base_rent"], input[name="electricity_price"], input[name="water_price"], input[name="trash_price"], input[name="internet_price"], input[name="duration"], input[name="deposit"]');
+        allInputsToFix.forEach(input => {
+            input.removeAttribute('oninvalid');
+            input.removeAttribute('oninput');
+        });
+
+        // 2. Kiểm tra Tên phòng
+        const nameInput = document.querySelector('input[name="name"]');
+        if (nameInput) {
+            const checkName = () => {
+                if (nameInput.value.length === 0) {
+                    nameInput.setCustomValidity('Tên phòng không được bỏ trống!');
+                } else if (/[^0-9]/.test(nameInput.value)) {
+                    nameInput.setCustomValidity('Tên phòng chỉ được là số (Lưu ý: Số đầu tiên là số tầng)');
+                } else {
+                    nameInput.setCustomValidity('');
+                }
+            };
+            nameInput.addEventListener('input', function() {
+                checkName();
+                if (!this.validity.valid && this.value.length > 0) this.reportValidity();
+            });
+            nameInput.addEventListener('invalid', checkName);
+        }
+
+        // 3. Kiểm tra Căn cước và Số điện thoại
+        function setupIdAndPhone(selector, targetLength, labelName) {
+            const input = document.querySelector(selector);
+            if (!input) return;
+
+            const checkValidity = () => {
+                const val = input.value;
+                if (val.length === 0) {
+                    input.setCustomValidity(labelName + ' không được bỏ trống!');
+                } else if (/[^0-9]/.test(val)) {
+                    input.setCustomValidity(labelName + ' chỉ được phép nhập số!');
+                } else if (val.length !== targetLength) {
+                    input.setCustomValidity(labelName + ' bắt buộc phải nhập đủ ' + targetLength + ' số');
+                } else {
+                    input.setCustomValidity('');
+                }
+            };
+
+            input.addEventListener('input', function() {
+                checkValidity();
+                if (!this.validity.valid && this.value.length > 0) this.reportValidity();
+            });
+            input.addEventListener('invalid', checkValidity);
+        }
+        setupIdAndPhone('input[name="identify"]', 12, 'Căn cước công dân');
+        setupIdAndPhone('input[name="phone_number"]', 10, 'Số điện thoại');
+
+        // 4. Kiểm tra các trường Giá tiền và Chỉ số
+        const numericFields = [
+            { name: 'floor', label: 'Số tầng' },
+            { name: 'area', label: 'Diện tích' },
+            { name: 'base_rent', label: 'Giá thuê' },
+            { name: 'electricity_price', label: 'Đơn giá điện' },
+            { name: 'water_price', label: 'Đơn giá nước' },
+            { name: 'current_electricity', label: 'Chỉ số điện đầu' },
+            { name: 'current_water', label: 'Chỉ số nước đầu' },
+            { name: 'trash_price', label: 'Rác' },
+            { name: 'internet_price', label: 'Internet' },
+            { name: 'duration', label: 'Thời hạn thuê phòng' },
+            { name: 'deposit', label: 'Tiền cọc' }
+        ];
+
+        numericFields.forEach(field => {
+            const input = document.querySelector(`input[name="${field.name}"]`);
+            if (input) {
+                const checkNumeric = () => {
+                    const val = input.value;
+                    if (val.length === 0) {
+                        if (input.hasAttribute('required')) {
+                            input.setCustomValidity(field.label + ' không được bỏ trống!');
+                        } else {
+                            input.setCustomValidity('');
+                        }
+                    } 
+                    // Ưu tiên 1: Lỗi số âm
+                    else if (val.includes('-')) {
+                        input.setCustomValidity(field.label + ' không được nhập số âm');
+                    } 
+                    // Ưu tiên 2: Lỗi chữ cái
+                    else if (/[^0-9.]/.test(val)) {
+                        input.setCustomValidity(field.label + ' chỉ được phép nhập số');
+                    } 
+                    // Hợp lệ
+                    else {
+                        input.setCustomValidity('');
+                    }
+                };
+
+                input.addEventListener('input', function() {
+                    checkNumeric();
+                    // Chỉ báo bảng đỏ khi đang gõ và có lỗi
+                    if (!this.validity.valid && this.value.length > 0) {
+                        this.reportValidity();
+                    }
+                });
+
+                input.addEventListener('invalid', checkNumeric);
+            }
+        });
+    });
+
+    let storedFiles = [];
+
+    function removeExistingFile(docId) {
+        if (confirm('Bạn có muốn xóa ảnh này vĩnh viễn không?')) {
+            // Điền ID vào hidden input để gửi về views.py thực hiện lệnh delete()
+            document.getElementById(`delete-input-${docId}`).value = docId;
+            // Ẩn khối ảnh trên giao diện
+            document.getElementById(`existing-doc-${docId}`).classList.add('hidden');
+        }
+    }
+
+    // 2. Hàm xử lý khi chọn file mới
+    function previewFiles(event) {
+        const fileInput = event.target;
+        const newFiles = Array.from(fileInput.files);
+        storedFiles = [...storedFiles, ...newFiles];
+        updateFileInput(fileInput);
+        renderPreview();
+    }
+
+    function renderPreview() {
+        const previewContainer = document.getElementById('file-name-preview');
+        const newFilesContainer = document.getElementById('new-files-container');
+        const labelText = document.getElementById('file-label-text');
+        if (storedFiles.length > 0 || document.querySelectorAll('[id^="existing-doc-"]:not(.hidden)').length > 0) {
+            previewContainer.classList.remove('hidden');
+        }
+        newFilesContainer.innerHTML = '';
+        storedFiles.forEach((file, index) => {
+            const box = document.createElement('div');
+            box.className = "group relative rounded-md overflow-hidden border border-gray-200 aspect-square flex items-center justify-center bg-gray-100 shadow-sm";
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = "absolute top-1 right-1 bg-gray-500/80 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 cursor-pointer";
+            deleteBtn.innerHTML = '<span class="material-icons text-[14px]">close</span>';
+            deleteBtn.onclick = (e) => {
+                e.preventDefault();
+                storedFiles.splice(index, 1);
+                updateFileInput(document.getElementById('document_file'));
+                renderPreview();
+            };
+            box.appendChild(deleteBtn);
+
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.className = "w-full h-full object-cover cursor-zoom-in";
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.src = e.target.result;
+                    img.onclick = () => openModal(e.target.result);
+                };
+                reader.readAsDataURL(file);
+                box.appendChild(img);
+            } else {
+                box.innerHTML += `<div class="p-2 text-center text-xs"><span class="material-icons text-red-500 text-2xl">picture_as_pdf</span><br/><span class="truncate block w-16">${file.name}</span></div>`;
+            }
+            newFilesContainer.appendChild(box);
+        });
+    }
+
+    function updateFileInput(inputElement) {
+        const dataTransfer = new DataTransfer();
+        storedFiles.forEach(f => dataTransfer.items.add(f));
+        inputElement.files = dataTransfer.files;
+    }
+
+    function openModal(src) {
+        const modal = document.getElementById('image-modal');
+        document.getElementById('modal-img').src = src;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+        document.getElementById('image-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+</script>
+</body>
+</html>
