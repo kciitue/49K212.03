@@ -539,7 +539,7 @@
         const tenantInputs = tenantSection.querySelectorAll('input, select');
         const startDateInput = document.getElementById('start_date_input');
         const now = new Date();
-        const offset = now.getTimezoneOffset() * 60000; // Lấy độ lệch múi giờ
+        const offset = now.getTimezoneOffset() * 60000;
         const localISOTime = new Date(now - offset).toISOString().split('T')[0];
         const today = localISOTime;
         
@@ -587,11 +587,6 @@
             });
         }
 
-        // =========================================================================
-        // PHẦN LOGIC THÊM VÀO ĐỂ BẮT LỖI SỐ ÂM/CHỮ CÁI (KHÔNG LÀM ẢNH HƯỞNG HTML CŨ)
-        // =========================================================================
-
-        // 1. Tắt các sự kiện oninvalid/oninput viết sẵn trong HTML để tránh bị mất thông báo
         const allInputsToFix = document.querySelectorAll('input[name="name"], input[name="identify"], input[name="phone_number"], input[name="floor"], input[name="area"], input[name="base_rent"], input[name="electricity_price"], input[name="water_price"], input[name="trash_price"], input[name="internet_price"], input[name="duration"], input[name="deposit"]');
         allInputsToFix.forEach(input => {
             input.removeAttribute('oninvalid');
@@ -644,7 +639,7 @@
         setupIdAndPhone('input[name="identify"]', 12, 'Căn cước công dân');
         setupIdAndPhone('input[name="phone_number"]', 10, 'Số điện thoại');
 
-        // 4. Kiểm tra các trường Giá tiền và Chỉ số
+        // 4. Kiểm tra các trường Giá tiền và Chỉ số (ĐÃ XÓA DEPOSIT KHỎI ĐÂY)
         const numericFields = [
             { name: 'floor', label: 'Số tầng' },
             { name: 'area', label: 'Diện tích' },
@@ -655,8 +650,7 @@
             { name: 'current_water', label: 'Chỉ số nước đầu' },
             { name: 'trash_price', label: 'Rác' },
             { name: 'internet_price', label: 'Internet' },
-            { name: 'duration', label: 'Thời hạn thuê phòng' },
-            { name: 'deposit', label: 'Tiền cọc' }
+            { name: 'duration', label: 'Thời hạn thuê phòng' }
         ];
 
         numericFields.forEach(field => {
@@ -671,15 +665,12 @@
                             input.setCustomValidity('');
                         }
                     } 
-                    // Ưu tiên 1: Lỗi số âm
                     else if (val.includes('-')) {
                         input.setCustomValidity(field.label + ' không được nhập số âm');
                     } 
-                    // Ưu tiên 2: Lỗi chữ cái
                     else if (/[^0-9.]/.test(val)) {
                         input.setCustomValidity(field.label + ' chỉ được phép nhập số');
                     } 
-                    // Hợp lệ
                     else {
                         input.setCustomValidity('');
                     }
@@ -687,7 +678,6 @@
 
                 input.addEventListener('input', function() {
                     checkNumeric();
-                    // Chỉ báo bảng đỏ khi đang gõ và có lỗi
                     if (!this.validity.valid && this.value.length > 0) {
                         this.reportValidity();
                     }
@@ -696,20 +686,80 @@
                 input.addEventListener('invalid', checkNumeric);
             }
         });
+
+        const depositInput = document.querySelector('input[name="deposit"]');
+        const checkDeposit = () => {
+            if (!depositInput) return;
+            const val = depositInput.value.replace(/[^0-9]/g, ''); // Lấy số thuần
+            const statusInput = document.querySelector('input[name="status"]:checked');
+            
+            // Nếu chọn "Đã cọc" mà để trống hoặc bằng 0
+            if (statusInput && (statusInput.value === 'deposited' || statusInput.value === 'rented') && (!val || parseInt(val) === 0)) {
+                depositInput.setCustomValidity("Tiền cọc không được bỏ trống!");
+            } 
+            else if (depositInput.value.includes('-')) {
+                depositInput.setCustomValidity("Tiền cọc không được nhập số âm");
+            } 
+            else if (/[^0-9.]/.test(depositInput.value)) {
+                depositInput.setCustomValidity("Tiền cọc chỉ được phép nhập số");
+            } 
+            else {
+                depositInput.setCustomValidity(""); // Hợp lệ
+            }
+        };
+
+        if (depositInput) {
+            depositInput.addEventListener('input', function() {
+                checkDeposit();
+                if (!this.validity.valid && this.value.length > 0) this.reportValidity();
+            });
+            depositInput.addEventListener('invalid', checkDeposit);
+        }
+        
+        // Khi click đổi trạng thái phòng, kiểm tra ngay tiền cọc
+        statusRadios.forEach(radio => {
+            radio.addEventListener('change', checkDeposit);
+        });
+
+        // 6. Xử lý Form Submit: Bật Popup bảng đỏ
+        const mainForm = document.querySelector('form');
+        if (mainForm) {
+            mainForm.addEventListener('submit', function(e) {
+                // Ép kiểm tra lỗi tiền cọc lần cuối
+                checkDeposit();
+                
+                // Nếu form có lỗi (bao gồm lỗi tiền cọc), báo lỗi và chặn gửi
+                if (!mainForm.checkValidity()) {
+                    e.preventDefault();
+                    // Tìm ô đang bị lỗi và bật popup đỏ lên
+                    const firstInvalid = mainForm.querySelector(':invalid');
+                    if (firstInvalid) {
+                        firstInvalid.reportValidity();
+                    }
+                    return false; // Dừng lại ở đây
+                }
+
+                // Nếu mọi thứ hợp lệ: Xóa dấu chấm trước khi gửi về Server
+                const moneyFields = ['base_rent', 'electricity_price', 'water_price', 'current_electricity', 'current_water', 'trash_price', 'internet_price', 'deposit'];
+                moneyFields.forEach(name => {
+                    const input = document.querySelector(`input[name="${name}"]`);
+                    if (input && input.value) {
+                        input.value = input.value.replace(/\./g, '');
+                    }
+                });
+            });
+        }
     });
 
     let storedFiles = [];
 
     function removeExistingFile(docId) {
         if (confirm('Bạn có muốn xóa ảnh này vĩnh viễn không?')) {
-            // Điền ID vào hidden input để gửi về views.py thực hiện lệnh delete()
             document.getElementById(`delete-input-${docId}`).value = docId;
-            // Ẩn khối ảnh trên giao diện
             document.getElementById(`existing-doc-${docId}`).classList.add('hidden');
         }
     }
 
-    // 2. Hàm xử lý khi chọn file mới
     function previewFiles(event) {
         const fileInput = event.target;
         const newFiles = Array.from(fileInput.files);
@@ -771,6 +821,7 @@
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
+    
     function closeModal() {
         document.getElementById('image-modal').classList.add('hidden');
         document.body.style.overflow = '';

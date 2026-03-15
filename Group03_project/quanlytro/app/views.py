@@ -20,6 +20,7 @@ def home_admin(request):
     rooms = Room.objects.all().order_by('floor')
     context = {'rooms': rooms}
     return render(request, 'app/home_admin.html', context)
+#Thêm phòng và thông tin người thuê
 def add_room(request):
     if request.method == 'POST':
         try:
@@ -106,7 +107,7 @@ def add_room(request):
     # GET REQUEST
     users = User.objects.filter(is_staff=False)
     context = {'users': users}
-    return render(request, 'app/add_room.html', context)
+    return render(request, 'apartment/add_room.html', context)
 
 def delete_room(request, room_id):
     room = Room.objects.get(id=room_id)
@@ -121,28 +122,28 @@ def edit_room(request, room_id):
 
     if request.method == 'POST':
         try:
-            # 1. HÀM DỌN DẸP SỐ (Quét sạch dấu chấm, dấu phẩy để tránh lỗi '1,250')
             def to_int(value):
                 if not value: return 0
                 return int(str(value).replace('.', '').replace(',', '').strip())
 
-            # 2. CẬP NHẬT THÔNG TIN PHÒNG
             new_name = request.POST.get('name', '').strip()
             if Room.objects.filter(name=new_name).exclude(id=room_id).exists():
-                messages.error(request,
-                               f"Lỗi: Không thể đổi số phòng thành '{new_name}' vì đã có phòng khác sử dụng!")
+                messages.error(request, f"Lỗi: Không thể đổi số phòng thành '{new_name}' vì đã có phòng khác sử dụng!")
                 return redirect('edit_room', room_id=room_id)
+                
             room.name = new_name
             room.floor = request.POST.get('floor', '1')
-            room.area = float(request.POST.get('area') or 0)
+            
+            # Sửa lỗi crash do float() không đọc được dấu phẩy (ví dụ '50,0')
+            area_str = str(request.POST.get('area', '0')).replace(',', '.')
+            room.area = float(area_str) if area_str else 0.0
+            
             room.max_occupancy = to_int(request.POST.get('max_occupancy'))
 
-            # ĐỒNG BỘ TRẠNG THÁI (Chuyển Anh sang Việt để hiện màu ở home_admin)
             status_map = {'available': 'Trống', 'rented': 'Đang thuê', 'maintenance': 'Sửa chữa','deposited': 'Đã cọc' }
             form_status = request.POST.get('status', 'available')
             room.status = status_map.get(form_status, 'Trống')
 
-            # Áp dụng to_int cho TẤT CẢ các trường số
             room.base_rent = to_int(request.POST.get('base_rent'))
             room.electricity_price = to_int(request.POST.get('electricity_price'))
             room.water_price = to_int(request.POST.get('water_price'))
@@ -152,16 +153,14 @@ def edit_room(request, room_id):
             room.current_electricity = to_int(request.POST.get('current_electricity'))
             room.current_water = to_int(request.POST.get('current_water'))
 
-            # Tiện nghi
             room.air_conditioner = request.POST.get('air_conditioner') == 'on'
             room.water_heater = request.POST.get('water_heater') == 'on'
             room.refrigerator = request.POST.get('refrigerator') == 'on'
             room.furniture = request.POST.get('furniture') == 'on'
             room.balcony = request.POST.get('balcony') == 'on'
 
-            room.save()  # Lưu bảng Room
+            room.save()  
 
-            # 3. XỬ LÝ HỢP ĐỒNG (Phải dùng chữ tiếng Việt 'Đang thuê' để khớp logic)
             if room.status in ['Đang thuê', 'Đã cọc']:
                 start_date = request.POST.get('start_date')
                 renter_id = request.POST.get('renter_id')
@@ -176,7 +175,6 @@ def edit_room(request, room_id):
                     duration = to_int(request.POST.get('duration'))
 
                     if contract:
-                        # Cập nhật thông tin vào hợp đồng hiện có
                         contract.renter = selected_user
                         contract.start_date = start_date
                         contract.duration = duration
@@ -185,14 +183,12 @@ def edit_room(request, room_id):
                         contract.phone_number = phone_number
                         contract.save()
                     else:
-                        # Tạo mới nếu chưa có
                         contract = Contract.objects.create(
                             room=room, renter=selected_user, start_date=start_date,
                             duration=duration, deposit=deposit, identify=identify,
                             phone_number=phone_number
                         )
 
-                    # XỬ LÝ ẢNH: Xóa ảnh cũ & Thêm ảnh mới
                     delete_ids = request.POST.getlist('delete_documents')
                     if delete_ids:
                         ContractDocument.objects.filter(id__in=[did for did in delete_ids if did]).delete()
@@ -205,10 +201,12 @@ def edit_room(request, room_id):
             return redirect('home_admin')
 
         except Exception as e:
-            # Hiện lỗi để bạn biết dòng nào hỏng thay vì chỉ refresh âm thầm
+            print(f"LỖI SỬA PHÒNG: {e}")
             return redirect('edit_room', room_id=room_id)
 
-    return render(request, 'app/add_room.html', {'users': users, 'room': room})
+    return render(request, 'apartment/add_room.html', {'users': users, 'room': room})
+
+#Thêm hóa đơn
 def add_invoice(request, room_id):
    # Lấy thông tin phòng, nếu không có trả về 404
     room = get_object_or_404(Room, id=room_id)
