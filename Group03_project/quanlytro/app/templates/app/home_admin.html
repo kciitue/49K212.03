@@ -329,14 +329,11 @@
 </main>
 <script>
     document.querySelectorAll('.format-vnd').forEach(function(el) {
-        // Bước 1: Dùng Regex dọn sạch mọi dấu phẩy, dấu chấm, khoảng trắng... chỉ giữ lại số nguyên chất
         let rawNumber = el.textContent.replace(/[^0-9]/g, '');
 
-        // Bước 2: Ép kiểu thành số
         let money = parseInt(rawNumber);
 
         if (!isNaN(money) && rawNumber !== '') {
-            // Bước 3: Định dạng lại thành 3.500.000 ₫
             el.textContent = money.toLocaleString('vi-VN') + ' ₫';
         }
     });

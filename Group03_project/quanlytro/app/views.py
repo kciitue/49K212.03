@@ -99,7 +99,6 @@ def add_room(request):
             return redirect('home_admin')
 
         except Exception as e:
-            # In lỗi ra màn hình đen để bạn biết chính xác dòng nào sai
             print(f"LỖI THÊM PHÒNG: {e}")
             messages.error(request, f"Lỗi hệ thống: {e}")
             return redirect('add_room')
@@ -107,7 +106,7 @@ def add_room(request):
     # GET REQUEST
     users = User.objects.filter(is_staff=False)
     context = {'users': users}
-    return render(request, 'apartment/add_room.html', context)
+    return render(request, 'app/add_room.html', context)
 
 def delete_room(request, room_id):
     room = Room.objects.get(id=room_id)
@@ -134,7 +133,6 @@ def edit_room(request, room_id):
             room.name = new_name
             room.floor = request.POST.get('floor', '1')
             
-            # Sửa lỗi crash do float() không đọc được dấu phẩy (ví dụ '50,0')
             area_str = str(request.POST.get('area', '0')).replace(',', '.')
             room.area = float(area_str) if area_str else 0.0
             
@@ -204,7 +202,7 @@ def edit_room(request, room_id):
             print(f"LỖI SỬA PHÒNG: {e}")
             return redirect('edit_room', room_id=room_id)
 
-    return render(request, 'apartment/add_room.html', {'users': users, 'room': room})
+    return render(request, 'app/add_room.html', {'users': users, 'room': room})
 
 #Thêm hóa đơn
 def add_invoice(request, room_id):
@@ -218,7 +216,7 @@ def add_invoice(request, room_id):
         new_water = int(request.POST.get('new_water', 0))
         extra_fee = int(request.POST.get('extra_fee', '0').replace('.', ''))
         reason = request.POST.get('extra_fee_reason', '')
-        action = request.POST.get('action') # 'unpaid' hoặc 'draft'
+        action = request.POST.get('action')
 
         # Tính toán tiền bạc
         old_elec = room.current_electricity or 0
