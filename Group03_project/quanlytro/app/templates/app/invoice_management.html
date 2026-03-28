@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+{% load humanize %}
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Quản lý Hóa Đơn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#177fe8", 
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                        "primary-light": "#e7eff6",
+                        "primary-dark": "#156ed1",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 antialiased h-screen flex overflow-hidden">
+
+<aside class="w-64 bg-white dark:bg-[#1a2632] border-r border-gray-200 dark:border-gray-700 hidden md:flex flex-col z-20">
+    <div class="h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-800">
+        <div class="flex items-center gap-2 text-primary font-bold text-xl">
+            <span class="material-icons">apartment</span>
+            <span>Quản Lý Trọ</span>
+        </div>
+    </div>
+    <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="{% url 'home_admin' %}">
+            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">dashboard</span>
+            <span class="font-medium">Tổng quan</span>
+        </a>
+
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="{% url 'user_management' %}">
+            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">people</span>
+            <span class="font-medium">Người dùng</span>
+        </a>
+
+        <a class="flex items-center px-4 py-3 bg-primary/10 text-primary rounded-lg group transition-colors"
+           href="#">
+            <span class="material-icons mr-3 text-xl">receipt_long</span>
+            <span class="font-medium">Hóa đơn</span>
+        </a>
+
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="#">
+            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">handyman</span>
+            <span class="font-medium flex-1">Yêu cầu</span>
+            <span class="bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-bold min-w-[20px] text-center">3</span>
+        </a>
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="{%url 'report'%}">
+            <span class="material-icons mr-3 text-xl">analytics</span>
+            <span class="font-medium">Báo cáo</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-gray-100 dark:border-gray-800">
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="{% url 'logout'  %}">
+            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">logout</span>
+            <span class="font-medium">Đăng xuất</span>
+        </a>
+        <div class="mt-4 flex items-center gap-3 px-4 py-2">
+            <img alt="Hồ sơ" class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ user.first_name }}&background=177fe8&color=fff"/>
+            <div class="flex flex-col">
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ user.last_name }} {{ user.first_name }}</span>
+                <span class="text-xs text-gray-500">Chủ trọ</span>
+            </div>
+        </div>
+    </div>
+</aside>
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+    <header class="h-16 bg-white dark:bg-[#1a2632] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 lg:px-8 z-10 shadow-sm">
+        <div class="flex items-center gap-4">
+            <button class="md:hidden p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                <span class="material-icons">menu</span>
+            </button>
+            <h1 class="text-xl font-semibold text-gray-800 dark:text-white tracking-tight">Quản lý Hóa Đơn</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="relative p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                <span class="material-icons">notifications</span>
+                <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-[#1a2632]"></span>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-6 lg:p-8">
+        
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="flex items-center p-4 text-sm rounded-lg border {% if message.tags == 'success' %}bg-green-50 text-green-700 border-green-200{% else %}bg-red-50 text-red-700 border-red-200{% endif %}" role="alert">
+                <span class="material-icons text-lg mr-2">
+                    {% if message.tags == 'success' %}check_circle{% else %}error{% endif %}
+                </span>
+                <span class="font-medium">{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <section class="mb-6 flex flex-col md:flex-row gap-4">
+            <div class="relative flex-1">
+                <span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">search</span>
+                <input class="w-full pl-12 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-sm" placeholder="Tìm kiếm mã HĐ, tên khách hàng..." type="text"/>
+            </div>
+            <div class="flex gap-4">
+                <select class="px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-primary/50 outline-none text-sm text-gray-600 font-medium min-w-[160px]">
+                    <option value="">Tất cả phòng</option>
+                    <option value="101">Phòng 101</option>
+                    </select>
+                <select class="px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-primary/50 outline-none text-sm text-gray-600 font-medium min-w-[160px]">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="unpaid">Chưa thanh toán</option>
+                    <option value="paid">Đã thanh toán</option>
+                    <option value="draft">Nháp</option>
+                </select>
+            </div>
+        </section>
+
+        <div class="bg-white dark:bg-[#1a2632] rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50/50 dark:bg-gray-800/50 text-xs uppercase tracking-wider text-gray-500 font-semibold border-b border-gray-100 dark:border-gray-800">
+                            <th class="px-6 py-4">Mã HĐ</th>
+                            <th class="px-6 py-4">Phòng</th>
+                            <th class="px-6 py-4">Người thuê</th>
+                            <th class="px-6 py-4">Tổng tiền</th>
+                            <th class="px-6 py-4">Kỳ thanh toán</th>
+                            <th class="px-6 py-4">Ngày lập</th>
+                            <th class="px-6 py-4 text-center">Trạng thái</th>
+                            <th class="px-6 py-4 text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+                        
+                        {% for invoice in invoices %}
+                        <tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-primary">
+                                HD{{ invoice.id|stringformat:"04d" }}
+                            </td>
+                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                Phòng {{ invoice.room.name }}
+                            </td>
+                            
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
+                                {% if invoice.renter %}
+                                    {{ invoice.renter.last_name }} {{ invoice.renter.first_name }}
+                                {% else %}
+                                    <span class="text-gray-400 italic">Khách vãng lai</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="px-6 py-4 font-semibold text-gray-900 dark:text-gray-200">
+                                <span class="format-vnd">{{ invoice.total_amount }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-600 dark:text-gray-400">
+                                Tháng {{ invoice.billing_month|date:"m/Y" }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-500 text-sm">
+                                {{ invoice.created_at|date:"d/m/Y" }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                {% if invoice.status == 'unpaid' %}
+                                    <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border-red-200 whitespace-nowrap">
+                                        Chưa thanh toán
+                                    </span>
+                                {% elif invoice.status == 'paid' %}
+                                    <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 whitespace-nowrap">
+                                        Đã thanh toán
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-600 border border-yellow-200 whitespace-nowrap">
+                                        Nháp
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{% url 'view_invoice' invoice.id %}" 
+                                    class="p-1.5 rounded-md text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                                    title="Xem hóa đơn">
+                                        <span class="material-icons text-[20px]">visibility</span>
+                                    </a>
+                                    
+                                    <a href="{% url 'edit_invoice' invoice.id %}" 
+                                    class="p-1.5 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                                    title="Cập nhật trạng thái">
+                                        <span class="material-icons text-[20px]">edit</span>
+                                    </a>
+                                    {% if invoice.status == 'draft' %}
+                                        <a href="{% url 'cancel_invoice' invoice.id %}" 
+                                        onclick="return confirm('CẢNH BÁO: Bạn có chắc chắn muốn xóa vĩnh viễn hóa đơn này không?')"
+                                        class="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                        title="Xóa hóa đơn">
+                                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center justify-center">
+                                    <span class="material-icons text-gray-300 text-4xl mb-2">receipt_long</span>
+                                    <p class="text-gray-400 italic text-sm">Chưa có hóa đơn nào được tạo.</p>
+                                    <a href="{% url 'home_admin' %}" class="mt-4 text-primary text-sm hover:underline">Quay lại Tổng quan để chọn phòng tạo Hóa đơn</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    Hiển thị <span class="font-medium">1</span> đến <span class="font-medium">10</span> trong <span class="font-medium">48</span> kết quả
+                    </div>
+                <div class="flex items-center gap-2">
+                    <button class="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 disabled:opacity-50" disabled="">
+                        Trước
+                    </button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white font-bold text-sm shadow-sm shadow-primary/30">
+                        1
+                    </button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 font-medium text-gray-600 text-sm">
+                        2
+                    </button>
+                    <button class="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 transition-colors">
+                        Sau
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Định dạng tiền tệ có dấu chấm
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.format-vnd').forEach(function(el) {
+            let rawNumber = el.textContent.replace(/[^0-9]/g, '');
+            let money = parseInt(rawNumber);
+            if (!isNaN(money) && rawNumber !== '') {
+                el.textContent = money.toLocaleString('vi-VN') + ' ₫';
+            }
+        });
+    });
+</script>
+</body>
+</html>

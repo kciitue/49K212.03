@@ -547,6 +547,24 @@
             startDateInput.setAttribute('min', today);
         }
 
+        // === TỰ ĐỘNG FORMAT CÁC Ô TIỀN TỆ KHI VỪA TẢI TRANG ===
+        const allCurrencyFields = ['base_rent', 'electricity_price', 'water_price', 'trash_price', 'internet_price', 'deposit'];
+        allCurrencyFields.forEach(name => {
+            const input = document.querySelector(`input[name="${name}"]`);
+            if (input && input.value) {
+                let rawVal = input.value.replace(/[^0-9]/g, '');
+                if (rawVal) {
+                    input.value = new Intl.NumberFormat('vi-VN').format(parseInt(rawVal));
+                }
+            }
+        });
+
+        // === SỬA LỖI DẤU PHẨY (,) Ở Ô DIỆN TÍCH ===
+        const areaInput = document.querySelector('input[name="area"]');
+        if (areaInput && areaInput.value) {
+            areaInput.value = areaInput.value.replace(',', '.').replace(/\.0$/, '');
+        }
+
         function toggleTenantSection() {
             const selectedStatus = document.querySelector('input[name="status"]:checked').value;
 
@@ -639,7 +657,7 @@
         setupIdAndPhone('input[name="identify"]', 12, 'Căn cước công dân');
         setupIdAndPhone('input[name="phone_number"]', 10, 'Số điện thoại');
 
-        // 4. Kiểm tra các trường Giá tiền và Chỉ số (ĐÃ XÓA DEPOSIT KHỎI ĐÂY)
+        // 4. Kiểm tra các trường Giá tiền và Chỉ số
         const numericFields = [
             { name: 'floor', label: 'Số tầng' },
             { name: 'area', label: 'Diện tích' },
@@ -652,6 +670,7 @@
             { name: 'internet_price', label: 'Internet' },
             { name: 'duration', label: 'Thời hạn thuê phòng' }
         ];
+        const currencyFieldNames = ['base_rent', 'electricity_price', 'water_price', 'trash_price', 'internet_price'];
 
         numericFields.forEach(field => {
             const input = document.querySelector(`input[name="${field.name}"]`);
@@ -668,8 +687,9 @@
                     else if (val.includes('-')) {
                         input.setCustomValidity(field.label + ' không được nhập số âm');
                     } 
-                    else if (/[^0-9.]/.test(val)) {
-                        input.setCustomValidity(field.label + ' chỉ được phép nhập số');
+                    // Đã thêm dấu phẩy (,) vào dòng dưới để cho phép người dùng gõ diện tích 30,5
+                    else if (/[^0-9.,]/.test(val)) {
+                        input.setCustomValidity(field.label + ' chỉ được phép nhập số hợp lệ');
                     } 
                     else {
                         input.setCustomValidity('');
@@ -677,6 +697,16 @@
                 };
 
                 input.addEventListener('input', function() {
+                    // Format dấu chấm cho tiền tệ TRƯỚC KHI validate
+                    if (currencyFieldNames.includes(field.name)) {
+                        let rawVal = this.value.replace(/[^0-9]/g, '');
+                        if (rawVal !== '') {
+                            this.value = new Intl.NumberFormat('vi-VN').format(parseInt(rawVal));
+                        } else {
+                            this.value = '';
+                        }
+                    }
+
                     checkNumeric();
                     if (!this.validity.valid && this.value.length > 0) {
                         this.reportValidity();
@@ -695,7 +725,7 @@
             
             // Nếu chọn "Đã cọc" mà để trống hoặc bằng 0
             if (statusInput && (statusInput.value === 'deposited' || statusInput.value === 'rented') && (!val || parseInt(val) === 0)) {
-                depositInput.setCustomValidity("Tiền cọc không được bỏ trống!");
+                depositInput.setCustomValidity("Tiền cọc không được bỏ trống hoặc bẳng 0!");
             } 
             else if (depositInput.value.includes('-')) {
                 depositInput.setCustomValidity("Tiền cọc không được nhập số âm");
@@ -704,12 +734,20 @@
                 depositInput.setCustomValidity("Tiền cọc chỉ được phép nhập số");
             } 
             else {
-                depositInput.setCustomValidity(""); // Hợp lệ
+                depositInput.setCustomValidity("");
             }
         };
 
         if (depositInput) {
             depositInput.addEventListener('input', function() {
+                // Format dấu chấm cho tiền cọc
+                let rawVal = this.value.replace(/[^0-9]/g, '');
+                if (rawVal !== '') {
+                    this.value = new Intl.NumberFormat('vi-VN').format(parseInt(rawVal));
+                } else {
+                    this.value = '';
+                }
+
                 checkDeposit();
                 if (!this.validity.valid && this.value.length > 0) this.reportValidity();
             });
@@ -721,14 +759,13 @@
             radio.addEventListener('change', checkDeposit);
         });
 
-        // 6. Xử lý Form Submit: Bật Popup bảng đỏ
+        // 6. Xử lý Form Submit: Xóa dấu chấm & Bật Popup bảng đỏ
         const mainForm = document.querySelector('form');
         if (mainForm) {
             mainForm.addEventListener('submit', function(e) {
                 // Ép kiểm tra lỗi tiền cọc lần cuối
                 checkDeposit();
                 
-                // Nếu form có lỗi (bao gồm lỗi tiền cọc), báo lỗi và chặn gửi
                 if (!mainForm.checkValidity()) {
                     e.preventDefault();
                     // Tìm ô đang bị lỗi và bật popup đỏ lên
@@ -736,7 +773,7 @@
                     if (firstInvalid) {
                         firstInvalid.reportValidity();
                     }
-                    return false; // Dừng lại ở đây
+                    return false; 
                 }
 
                 // Nếu mọi thứ hợp lệ: Xóa dấu chấm trước khi gửi về Server
@@ -747,6 +784,11 @@
                         input.value = input.value.replace(/\./g, '');
                     }
                 });
+
+                // Đổi dấu phẩy thành dấu chấm cho diện tích trước khi submit
+                if (areaInput && areaInput.value) {
+                    areaInput.value = areaInput.value.replace(',', '.');
+                }
             });
         }
     });
@@ -821,12 +863,11 @@
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
-    
+
     function closeModal() {
         document.getElementById('image-modal').classList.add('hidden');
         document.body.style.overflow = '';
     }
-
 </script>
 </body>
 </html>

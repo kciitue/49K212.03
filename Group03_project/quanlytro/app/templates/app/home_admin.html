@@ -47,13 +47,13 @@
             <span class="font-medium">Tổng quan</span>
         </a>
 
-        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors">
-           {% comment %} href="{% url 'user_management' %}"> {% endcomment %}
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="{% url 'user_management' %}">
             <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">people</span>
             <span class="font-medium">Người dùng</span>
         </a>
         <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
-           href="#">
+           href="{% url 'invoice_management'%}">
             <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">receipt_long</span>
             <span class="font-medium">Hóa đơn</span>
         </a>
@@ -63,18 +63,22 @@
             <span class="font-medium flex-1">Yêu cầu</span>
             <span class="bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-bold min-w-[20px] text-center">3</span>
         </a>
+        <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
+           href="{%url 'report'%}">
+            <span class="material-icons mr-3 text-xl">analytics</span>
+            <span class="font-medium">Báo cáo</span>
+        </a>
     </nav>
     <div class="p-4 border-t border-gray-100 dark:border-gray-800">
         <a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white rounded-lg group transition-colors"
-           href="#">
-            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">settings</span>
-            <span class="font-medium">Cài đặt</span>
+           href="{% url 'logout'  %}">
+            <span class="material-icons mr-3 text-xl group-hover:text-primary dark:group-hover:text-white transition-colors">logout</span>
+            <span class="font-medium">Đăng xuất</span>
         </a>
         <div class="mt-4 flex items-center gap-3 px-4 py-2">
-            <img alt="Hồ sơ người dùng" class="w-8 h-8 rounded-full" data-alt="Admin user avatar"
-                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8C0eMIO1-TVFQaxd9pgwXKTSBbHzVK3mYNNw6f1al91czv_-MWDTENqxGZR3CLlKBqaz26D6N7AriM5cZnyRCCqHcUpyE86bA_ioEIZN1pqudnc09nBWkjfRM3AaZOC5d63dKYRRO1s4IT8DCoVBsm6v-EKTMbf1NbOHE5SleCCkGpmdsF_1RGdW07g_uwTzF7XWYWeTp_vgANHHrO6CSzsbO0Rna_Kz_M6VSdqoqCAXaeq3LlFhH-QA9ivxuX-GTl3QQH_c3b5_f"/>
+            <img alt="Hồ sơ" class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ user.first_name }}&background=177fe8&color=fff"/>
             <div class="flex flex-col">
-                {% comment %} <span class="text-sm font-medium text-gray-900 dark:text-white">{{ user.last_name }} {{ user.first_name }}</span> {% endcomment %}
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ user.last_name }} {{ user.first_name }}</span>
                 <span class="text-xs text-gray-500">Chủ trọ</span>
             </div>
         </div>

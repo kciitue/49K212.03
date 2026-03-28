@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+{% load humanize %}
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Trang chủ</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#177fe8", 
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2632",
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-neutral-800 dark:text-neutral-100 font-display min-h-screen flex flex-col">
+
+<nav class="sticky top-0 z-50 bg-surface-light dark:bg-surface-dark border-b border-neutral-200 dark:border-neutral-700 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <span class="text-xl font-bold tracking-tight text-primary">Trang chủ người thuê</span>
+                </div>
+                <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
+                    <a class="border-primary text-neutral-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" href="{% url 'home_customer' %}">Trang chủ</a>
+                    <a class="border-transparent text-neutral-500 dark:text-neutral-400 hover:border-neutral-300 hover:text-neutral-700 dark:hover:text-neutral-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" href="#">Bài viết</a>
+                    <a class="border-transparent text-neutral-500 dark:text-neutral-400 hover:border-neutral-300 hover:text-neutral-700 dark:hover:text-neutral-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" href="#">Tin nhắn</a>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button class="p-1 rounded-full text-neutral-400 hover:text-neutral-500 focus:outline-none">
+                    <span class="material-icons">notifications</span>
+                </button>
+                
+                <div class="flex items-center gap-3 pl-4 border-l border-neutral-200 dark:border-neutral-700">
+                    <div class="hidden md:block text-right">
+                        <p class="text-sm font-bold text-neutral-700 dark:text-neutral-200">{{ user.last_name }} {{ user.first_name }}</p>
+                        <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                            {% if room %}
+                                Phòng {{ room.name }}
+                            {% else %}
+                                Chưa có phòng
+                            {% endif %}
+                        </p>
+                    </div>
+                    <img alt="User" class="h-9 w-9 rounded-full object-cover ring-2 ring-primary/20" src="https://ui-avatars.com/api/?name={{ user.first_name }}&background=177fe8&color=fff"/>
+                    
+                    <a href="{% url 'logout' %}" class="ml-2 flex items-center gap-1 text-gray-500 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-50 dark:hover:bg-gray-900/10" title="Đăng xuất">
+                        <span class="material-icons text-xl">logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-grow w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <header class="max-w-5xl mx-auto mb-10 text-center sm:text-left">
+        <h1 class="text-3xl font-bold text-neutral-900 dark:text-white">Chào mừng trở lại, {{ user.last_name }} {{ user.first_name }}</h1>
+    </header>
+
+    <div class="max-w-5xl mx-auto">
+        <div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden flex flex-col min-h-[500px]">
+            
+            <div class="border-b border-neutral-200 dark:border-neutral-700 px-8 pt-2 bg-neutral-50/50 dark:bg-neutral-800/30">
+                <nav aria-label="Tabs" class="flex space-x-10">
+                    <button id="tab-btn-history" onclick="switchTab('history')" class="border-primary text-primary whitespace-nowrap py-5 px-1 border-b-2 font-semibold text-sm flex items-center gap-2 transition-all">
+                        Lịch sử hóa đơn
+                    </button>
+                    <button id="tab-btn-report" onclick="switchTab('report')" class="border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 hover:border-neutral-300 whitespace-nowrap py-5 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-all">
+                        Báo hỏng
+                    </button>
+                    <button id="tab-btn-usage" onclick="switchTab('usage')" class="border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 hover:border-neutral-300 whitespace-nowrap py-5 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-all">
+                        Lịch sử tiêu thụ
+                    </button>
+                </nav>
+            </div>
+
+            <div class="p-8 flex-grow" id="tab-content-history">
+                <h3 class="text-xl font-bold text-neutral-900 dark:text-white mb-6">Danh sách hóa đơn</h3>
+                <div class="overflow-x-auto custom-scrollbar rounded-xl border border-neutral-100 dark:border-neutral-700">
+                    <table class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+                        <thead class="bg-neutral-50 dark:bg-neutral-800/50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">Mã hóa đơn</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">Kỳ thanh toán</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">Số tiền</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">Trạng thái</th>
+                                <th class="px-6 py-4 text-right text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-transparent divide-y divide-neutral-100 dark:divide-neutral-700">
+                            {% for invoice in invoices %}
+                            <tr class="hover:bg-primary/5 transition-colors">
+                                <td class="px-6 py-5 whitespace-nowrap text-sm text-primary font-bold">HD{{ invoice.id|stringformat:"04d" }}</td>
+                                <td class="px-6 py-5 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-300">Tháng {{ invoice.billing_month|date:"m/Y" }}</td>
+                                <td class="px-6 py-5 whitespace-nowrap text-sm text-neutral-600 format-vnd">{{ invoice.total_amount }}</td>
+                                <td class="px-6 py-5 whitespace-nowrap">
+                                    <span id="status-{{ invoice.id }}" 
+                                        data-invoice-id="{{ invoice.id }}"
+                                        data-status="{{ invoice.status }}"
+                                        class="status-badge px-3 py-1 rounded-full text-[11px] font-bold 
+                                        {% if invoice.status == 'paid' %} bg-green-100 text-green-700 rounded-full
+                                        {% elif invoice.status == 'unpaid' %} bg-red-100 text-red-700 rounded-full
+                                        {% else %} bg-gray-100 text-gray-700 {% endif %}">
+                                        
+                                        {% if invoice.status == 'paid' %} Đã thanh toán
+                                        {% else %} Chưa thanh toán {% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-5 whitespace-nowrap text-right text-sm">
+                                    <a class="text-primary font-bold hover:underline" href="{% url 'guest_invoice_detail' invoice.id %}">Xem</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="p-8 hidden" id="tab-content-report">
+                <div class="text-center py-20 text-neutral-500 italic">Tính năng gửi báo hỏng chưa được phát triển</div>
+            </div>
+
+            <div class="p-8 hidden" id="tab-content-usage">
+                <h3 class="text-xl font-bold text-neutral-900 dark:text-white mb-6">Chi phí điện & nước</h3>
+                <div class="overflow-x-auto custom-scrollbar rounded-xl border border-neutral-100 dark:border-neutral-700">
+                    <table class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+                        <thead class="bg-neutral-50 dark:bg-neutral-800/50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">Kỳ thanh toán</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">Tiền Điện</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">Tiền Nước</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-transparent divide-y divide-neutral-100 dark:divide-neutral-700">
+                            {% for invoice in invoices %}
+                            <tr class="hover:bg-primary/5 transition-colors">
+                                <td class="px-6 py-5 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-300">
+                                    Tháng {{ invoice.billing_month|date:"m/Y" }}
+                                </td>
+                                <td class="px-6 py-5 whitespace-nowrap text-sm text-neutral-600 font-bold format-vnd">
+                                    {{ invoice.get_elec_cost }}
+                                </td>
+                                <td class="px-6 py-5 whitespace-nowrap text-sm text-neutral-600 font-bold format-vnd">
+                                    {{ invoice.get_water_cost }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script>
+    function switchTab(tabName) {
+        const tabs = ['history', 'report', 'usage'];
+        tabs.forEach(tab => {
+            const content = document.getElementById(`tab-content-${tab}`);
+            const btn = document.getElementById(`tab-btn-${tab}`);
+            if (content && btn) {
+                if (tab === tabName) {
+                    content.classList.remove('hidden');
+                    btn.classList.add('border-primary', 'text-primary');
+                    btn.classList.remove('border-transparent', 'text-neutral-500');
+                } else {
+                    content.classList.add('hidden');
+                    btn.classList.remove('border-primary', 'text-primary');
+                    btn.classList.add('border-transparent', 'text-neutral-500');
+                }
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        function applyVndFormatting() {
+            document.querySelectorAll('.format-vnd').forEach(el => {
+                let text = el.textContent.trim();
+                let number = parseInt(text.replace(/[^0-9]/g, ''));
+                if (!isNaN(number)) {
+                    el.textContent = new Intl.NumberFormat('vi-VN').format(number) + ' đ';
+                }
+            });
+        }
+        applyVndFormatting();
+        function checkAllUnpaidInvoices() {
+        const unpaidBadges = document.querySelectorAll('.status-badge[data-status="unpaid"]');
+        
+        unpaidBadges.forEach(badge => {
+            const invoiceId = badge.getAttribute('data-invoice-id');
+            fetch(`/api/invoice/${invoiceId}/status/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'paid') {
+                        // Cập nhật giao diện ngay lập tức
+                        badge.className = "status-badge px-3 py-1 rounded-full text-[11px] font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 uppercase";
+                        badge.textContent = "Đã thanh toán";
+                        badge.setAttribute('data-status', 'paid');
+                        console.log(`Hóa đơn ${invoiceId} đã được thanh toán thành công!`);
+                    }
+                })
+                .catch(err => console.error("Lỗi kiểm tra hóa đơn:", err));
+        });
+    }
+        const autoUpdateInterval = setInterval(checkAllUnpaidInvoices, 3000);
+    });
+</script>
+
+</body>
+</html>

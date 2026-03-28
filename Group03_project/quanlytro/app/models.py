@@ -3,11 +3,22 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 import calendar
 from datetime import date
-
 # Create your models here.
+
+#Tạo bảng profile để gắn thẻ cho chủ trọ
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='my_renters', null=True, blank=True)
+    
+    def __str__(self):
+        return self.user.username
+
+
+#Phòng
 class Room(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='my_rooms', null=True, blank=True)
     #1. Thông tin cơ bản
-    name = models.IntegerField(unique=True, verbose_name="Tên phòng", error_messages={"invalid": "Tên phòng chỉ được là số (Lưu ý: Số đầu tiên là số tầng)"})
+    name = models.IntegerField(verbose_name="Tên phòng", error_messages={"invalid": "Tên phòng chỉ được là số (Lưu ý: Số đầu tiên là số tầng)"})
     floor = models.IntegerField(verbose_name="Tầng", error_messages={"invalid": "Số tầng chỉ được là số"})
     area = models.FloatField(verbose_name="Diện tích (m2)")
     max_occupancy = models.IntegerField(default=1, verbose_name="Số người tối đa")
@@ -68,6 +79,8 @@ class Room(models.Model):
             return None
 
         return self.contracts.order_by('-start_date').first()
+    class Meta:
+        unique_together = ('owner', 'name')
 
 #Thông tin cơ bản người thuê
 class Contract(models.Model):
@@ -117,11 +130,9 @@ class Contract(models.Model):
             return "Vô thời hạn"
 
         if self.start_date:
-            # Thuật toán cộng tháng an toàn trong Python
             month = self.start_date.month - 1 + self.duration
             year = self.start_date.year + month // 12
             month = month % 12 + 1
-            # Đảm bảo không bị lỗi nếu cộng tháng rơi vào ngày 31 mà tháng đó chỉ có 30 ngày
             day = min(self.start_date.day, calendar.monthrange(year, month)[1])
             return date(year, month, day)
         return None
@@ -144,6 +155,16 @@ class Invoice(models.Model):
 
     # Liên kết với bảng Room. Nếu xóa phòng, hóa đơn của phòng đó cũng bị xóa (CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='invoices', verbose_name="Phòng")
+
+    #Liên kết với bảng User. Nếu lỡ xóa user thì hóa đơn vẫn còn đó và để trống tên
+    renter = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='invoices', 
+        verbose_name="Người thuê"
+    )
     
     # Kỳ hóa đơn (lưu ngày 1 của tháng đó để dễ sort/lọc dữ liệu)
     billing_month = models.DateField(verbose_name="Kỳ hóa đơn") 
@@ -173,7 +194,19 @@ class Invoice(models.Model):
 
     class Meta:
         verbose_name = "Hóa đơn"
-        ordering = ['-billing_month', '-created_at'] # Tự động sắp xếp hóa đơn mới nhất lên đầu
+        ordering = ['-billing_month', '-created_at']
 
+        #Điều kiện ràng buộc 1 căn hộ không được có 2 hóa đơn cùng tháng
+        constraints = [
+            models.UniqueConstraint(
+                fields=['room', 'billing_month'], 
+                name='unique_invoice_per_room_per_month'
+            )
+        ]
+    def get_elec_cost(self):
+        return (self.new_electricity - self.old_electricity) * self.electricity_price
+    def get_water_cost(self):
+        return (self.new_water - self.old_water) * self.water_price
     def __str__(self):
-        return f"Hóa đơn {self.room.name} - Kỳ {self.billing_month.strftime('%m/%Y')}"
+        renter_name = f" - {self.renter.get_full_name()}" if self.renter else "Khách đã trả phòng"
+        return f"Hóa đơn {self.room.name}{renter_name} - Kỳ {self.billing_month.strftime('%m/%Y')}"
